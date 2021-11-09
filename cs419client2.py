@@ -74,9 +74,9 @@ def encryptMessage(message):
     e = gen_e(phi)
     d = gen_d(e, phi)
     m = int.from_bytes(bytes(message,'utf-8'), 'big')
-    print(m)
+    
     c = rsa_encrypt_message(m, e, n)
-    print(c)
+    return str(c)
     
 
 
@@ -98,7 +98,7 @@ def receive_message():
                 print(message)
         #error, wrong ip or port
         except:                                                 
-            print("Error, wrong ip or port")
+            print("Error with connection, ip, or port")
             client.close()
             break
 #write message
