@@ -3,7 +3,7 @@ from functools import lru_cache
 import numpy as np 
 import sys
 from Security_project.mongo import mongodb_atlas_test 
-from monggo import *
+# from monggo import *
 import hashlib
 
 """
@@ -113,8 +113,15 @@ def signup(username, password):
     # is this safer to do on our end or server end?
     database.insert_user({'username': username, 'password' : hash_password(password), 'public key' :public_key })
     
-    
-    
+"""
+--------------------------------------------------------------------------------
+---------------------------- For retrieving public key -------------------------
+--------------------------------------------------------------------------------
+""" 
+def get_public_key(username):
+    return database.get_public_key(username)
+
+
 
 def main():
     p, q = gen_p_q()
@@ -141,8 +148,8 @@ def main():
 
 
 
-if __name__ == '__main__':
-    main()
+# if __name__ == '__main__':
+#     main()
 
 
     
