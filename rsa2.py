@@ -2,8 +2,8 @@ from Crypto.Util.number import getPrime
 from functools import lru_cache
 import numpy as np 
 import sys
-from Security_project.mongo import mongodb_atlas_test 
-from monggo import *
+from mongo import mongodb_atlas_test
+#from monggo import *
 import hashlib
 
 """
