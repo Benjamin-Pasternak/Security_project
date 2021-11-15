@@ -107,6 +107,7 @@ class Client(object):
         password = rsa2.hash_password(password)
         print(f"{username}:{password}")
 
+
         """
         VALIDATE USER DATA, IF LOGIN SUCCESFUL TRANSTION TO MAIN CHAT WINDOW
         """
