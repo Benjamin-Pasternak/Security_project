@@ -103,7 +103,7 @@ class Client(object):
         temp = temp[num:]
         num2 = temp.find("'")
         passtemp = temp[:num2]
-        passtemp = rsa2.hash_password(passtemp)
+        #passtemp = rsa2.hash_password(passtemp)
         password = rsa2.hash_password(password)
         print(f"{username}:{password}")
 
