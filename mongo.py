@@ -3,7 +3,7 @@ import datetime
 import time
 import os
 import sys
-
+import certifi
 
 # import rsa2
 
@@ -14,7 +14,7 @@ class mongodb_atlas_test:
         TODO: This client connection string needs to probabaly be secured. Need to figure out what
         the best way to do this is.
         """
-        self.client = pymongo.MongoClient('')
+        self.client = pymongo.MongoClient('mongodb+srv://general_user:Snapdragon777apZ@cluster0.shbn7.mongodb.net/myFirstDatabase?retryWrites=true&w=majority', tlsCAFile=certifi.where())
         self.db = self.client.myFirstDatabase
         self.collection = self.db.user_info
 
@@ -47,46 +47,46 @@ class mongodb_atlas_test:
         self.collection.update_one(data, {'$set': data}, upsert=True)
 
 
-if __name__ == "__main__":
-    mongodb_atlas_test = mongodb_atlas_test()
-    # publicKey1, e = rsa2.gen_public_key()
-    # privateKey1 = rsa2.gen_private_key(publicKey1[0], e)
-    # publicKey2, e = rsa2.gen_public_key()
-    # privateKey2 = rsa2.gen_private_key(publicKey2[0], e)
-    # data1 = {
-    #     "username": "John",
-    #     "password": "yomama",
-    #     "publicKey": publicKey1
-    # }
-    data2 = {
-        "username": "Bob",
-        "password": "yo_mama",
-        "publicKey": (13, 5)
-    }
-
-    # data2 = {mongodb_atlas_test.collection.find( { "$text": { "$search": "Bob" } } )
-
-    the = mongodb_atlas_test.get_data('Bob')
-    # the = mongodb_atlas_test.collection.find({ "$text": { "$search": "Bob" } } )
-
-    # the = mongodb_atlas_test.get_data({"$text": { "$search": "Bob" } })
-    yoo = 'yo_mama'
-    print(the)
-    if not the:
-        print('hmm')
-    temp = str(the[0])
-    print(temp.find('password'))
-    print(temp[66])
-    num = temp.find('password')
-    num = num+12
-    temp = temp[num:]
-    print(temp.find("'"))
-    num2 = temp.find("'")
-    temp = temp[:num2]
-    print(temp)
-    if(temp == yoo):
-        print('yay')
-    #the2 = dict[(the)]
-
-   # usetemp = the2.get("username")
-   # print(usetemp)
+# if __name__ == "__main__":
+#     mongodb_atlas_test = mongodb_atlas_test()
+#     # publicKey1, e = rsa2.gen_public_key()
+#     # privateKey1 = rsa2.gen_private_key(publicKey1[0], e)
+#     # publicKey2, e = rsa2.gen_public_key()
+#     # privateKey2 = rsa2.gen_private_key(publicKey2[0], e)
+#     # data1 = {
+#     #     "username": "John",
+#     #     "password": "yomama",
+#     #     "publicKey": publicKey1
+#     # }
+#     data2 = {
+#         "username": "Bob",
+#         "password": "yo_mama",
+#         "publicKey": (13, 5)
+#     }
+#
+#     # data2 = {mongodb_atlas_test.collection.find( { "$text": { "$search": "Bob" } } )
+#
+#     the = mongodb_atlas_test.get_data('Bob')
+#     # the = mongodb_atlas_test.collection.find({ "$text": { "$search": "Bob" } } )
+#
+#     # the = mongodb_atlas_test.get_data({"$text": { "$search": "Bob" } })
+#     yoo = 'yo_mama'
+#     print(the)
+#     if not the:
+#         print('hmm')
+#     temp = str(the[0])
+#     print(temp.find('password'))
+#     print(temp[66])
+#     num = temp.find('password')
+#     num = num+12
+#     temp = temp[num:]
+#     print(temp.find("'"))
+#     num2 = temp.find("'")
+#     temp = temp[:num2]
+#     print(temp)
+#     if(temp == yoo):
+#         print('yay')
+#     #the2 = dict[(the)]
+#
+#    # usetemp = the2.get("username")
+#    # print(usetemp)

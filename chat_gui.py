@@ -7,8 +7,8 @@ from PyQt5.uic import loadUi
 class Login(QDialog):
     
     def __init__(self):
-        super(Login,self).__init__()
-        loadUi("login.ui",self)
+        super(Login, self).__init__()
+        loadUi("login.ui", self)
         
         #self.titleLabel.adjustSize()
         
@@ -33,9 +33,8 @@ class Login(QDialog):
         VALIDATE USER DATA, IF LOGIN SUCCESFUL TRANSTION TO MAIN CHAT WINDOW
         """
        
-        self.goToServerInfo
-        
-        
+        self.goToServerInfo()
+
         
         ''' Frame Transition Functions''' 
         
@@ -64,22 +63,14 @@ class Login(QDialog):
         widget.setCurrentIndex(widget.currentIndex()+1)
         widget.setFixedWidth(720)
         widget.setFixedHeight(620)    
-        
-    
-       
-        
-     
 
-        
-        
-         
         
 class CreateAccount(QDialog):
     
     def __init__(self):
         
-        super(CreateAccount,self).__init__()
-        loadUi("createAccount.ui",self)
+        super(CreateAccount, self).__init__()
+        loadUi("createAccount.ui", self)
         
         self.signupButton.clicked.connect(self.createAccount)
         self.password.setEchoMode(QtWidgets.QLineEdit.Password)
@@ -117,19 +108,13 @@ class ChatWindow(QDialog):
     
     def __init__(self):
         
-        super(ChatWindow,self).__init__()
-        loadUi("chat_window.ui",self)
+        super(ChatWindow, self).__init__()
+        loadUi("chat_window.ui", self)
 
         self.sendButton.clicked.connect(self.sendMessage)
         self.disconnectButton.clicked.connect(self.disconnectFromServer)
-        
 
 
-
-        
-        
-        
-        
     def sendMessage(self):
         
         msg = self.userInput.text()
@@ -163,8 +148,8 @@ class JoinServer(QDialog):
     
     def __init__(self):
         
-        super(JoinServer,self).__init__()
-        loadUi("serverInfo.ui",self)
+        super(JoinServer, self).__init__()
+        loadUi("serverInfo.ui", self)
 
         self.connectButton.clicked.connect(self.connectToServer)
 
@@ -173,7 +158,7 @@ class JoinServer(QDialog):
         
         ip = self.server.text()
         port = self.port.text()
-        connected = TRUE
+        connected = True
             
         if connected:
             self.chatLog.append(f"[SERVER]: Successfully connected to ({ip} : {port})")

@@ -7,6 +7,7 @@ import rsa2
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtWidgets import QDialog, QApplication
 from PyQt5.uic import loadUi
+import json
 
 
 
@@ -75,7 +76,7 @@ class Client(object):
         
         print(f"{host}:{port}")
         
-        if self.connect(host,int(port)):
+        if self.connect(host, int(port)):
             
             self.joinServer.setHidden(True)
             self.chatWindow.setVisible(True)
@@ -95,17 +96,20 @@ class Client(object):
         '''
         username = self.loginUI.username.text()
         self.username = self.loginUI.username.text()
-        password = self.loginUI.password.text()
+        password = self.loginUI.password.text()  # unsafe hash it immediatly when you input it
         the = mongodb_atlas_test.get_data(username)
-        temp = str(the[0])
-        num = temp.find('password')
-        num = num + 12
-        temp = temp[num:]
-        num2 = temp.find("'")
-        passtemp = temp[:num2]
-        #passtemp = rsa2.hash_password(passtemp)
+        # checking if the password is
+        passtemp = the[0]['password']
+        # temp = str(the[0])
+        # # print('here', type(temp), type(the[0]))
+        # num = temp.find('password')
+        # num = num + 12
+        # temp = temp[num:]
+        # num2 = temp.find("'")
+        # passtemp = temp[:num2]
         password = rsa2.hash_password(password)
-        print(f"{username}:{password}")
+        # passtemp = rsa2.hash_password(passtemp)
+        print(f"{username}: {password}")
 
 
         """
@@ -113,6 +117,7 @@ class Client(object):
         """
 
         if password == passtemp:
+            # print('PASSED!')
             self.loginUI.setHidden(True)
             self.joinServer.setVisible(True)
         else:
@@ -142,22 +147,23 @@ class Client(object):
         # temp = temp[num:]
         # num2 = temp.find("'")
         #usetemp = temp[:num2]
-        if not the:
-            if confPass == password:
+        if not the:  # if the database does not contain the record
+            if confPass == password:  # if passwords match
                 self.username = username
                 public_key, e = rsa2.gen_public_key()
                 private_key = rsa2.gen_private_key(public_key[0], e)
                 public_key = str(public_key)
                 private_key = str(private_key)
-                print(public_key)
-                print(private_key)
+                # print(public_key)
+                # print(private_key)
                 temppass = rsa2.hash_password(password)
                 data2 = {
                     "username": username,
                     "password": temppass,
                     "publicKey": public_key
                 }
-                with open('secretstuff.txt', 'w') as f:
+                # json_write = json.dumps({'username': username, 'private_key': private_key})
+                with open('secretstuff.txt', 'a') as f:
                     f.write(username + '\n')
                     f.write(str(private_key))
                 mongodb_atlas_test.insert_data(data2)
@@ -203,10 +209,10 @@ class Client(object):
         
         
     ''' Connect client to server'''    
-    def connect(self,host, port):
+    def connect(self, host, port):
         
         try:
-            self.clientSocket.connect((host,int(port)))
+            self.clientSocket.connect((host, int(port)))
             print(f"[CLIENT]: Connected to server {host}:{port}...")
             return True
         except Exception as e:
@@ -223,12 +229,18 @@ class Client(object):
     def send_message(self):
         msg = self.chatWindow.userInput.text()
         print("Uname:", self.username)
+        # this fixes doubleed username bug
         if self.username == '':
             self.username = msg
         else:
             msg = f"{self.username.upper()}: {msg}   "
             
         try:
+            try:
+                encoded = int.from_bytes(bytes(f'{msg}', 'utf-8'), 'big')
+                msg = int.from_bytes(b'The', 'big')
+            except Exception as e:
+                pass
             self.clientSocket.send(msg.encode('utf-8'))
             self.chatWindow.userInput.clear()
         except Exception as e:
@@ -261,12 +273,13 @@ class ReceiveThread(QtCore.QThread):
         while True:
             self.receive_message()
 
+
     def receive_message(self):
 
         while True:
             message = self.client_socket.recv(1024)
             if len(message) == 0:
-                break;
+                break
             message = message.decode()
 
             print(message)
@@ -294,8 +307,8 @@ class ChatWindow(QDialog):
     
     def __init__(self):
         
-        super(ChatWindow,self).__init__()
-        loadUi("chat_window.ui",self)
+        super(ChatWindow, self).__init__()
+        loadUi("chat_window.ui", self)
 
 
 class CreateAccount(QDialog):
@@ -313,17 +326,6 @@ class Login(QDialog):
         self.password.setEchoMode(QtWidgets.QLineEdit.Password)  # Changes password visability
 
         
-    
-        
-      
-        
-        
-        
-    
-
-
-
-
 
 if __name__ == "__main__":
     mongodb_atlas_test = mongo.mongodb_atlas_test()

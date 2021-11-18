@@ -4,11 +4,11 @@ import threading
 #local host
 host = '127.0.0.1'  
 #unreserved port                                                   
-port = 8080
+port = 8081
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)              
 server.bind((host, port))                                               
-server.listen()
+server.listen(2)
 
 #lists of clients accessing server and current usernames
 clientList = []
