@@ -1,14 +1,15 @@
 import socket
-import threading                                                
+import threading   
+                                       
 
 #local host
 host = '127.0.0.1'  
 #unreserved port                                                   
-port = 5555                                                             
+port = 8081                                                             
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)              
 server.bind((host, port))                                               
-server.listen()
+server.listen(1)
 
 #lists of clients accessing server and current usernames
 clientList = []
@@ -29,27 +30,25 @@ def client_handler(client):
             clientList.remove(client)
             client.close()
             username = usernameList[clientIndex]
-            send_message('{} left'.format(username).encode('ascii'))
+            send_message('{} left'.format(username).encode('utf-8'))
             usernameList.remove(username)
             break
 
 #receive clients, enter into clientList and usernameList
 def receive():                                                          
     while True:
-        client, address = server.accept()
-        print("New user IP and Port: {}".format(str(address)))   
-
-        client.send('USERNAME'.encode('ascii'))
-        username = client.recv(1024).decode('ascii')
-        usernameList.append(username)
-        clientList.append(client)
-        print("New user's username is {}".format(username))
-        
-        #TODO give each user unique id, probably set id to a counter
-        
-        send_message("New user {} joined".format(username).encode('ascii'))
-        client.send('You have connected to server'.encode('ascii'))
-        thread = threading.Thread(target=client_handler, args=(client,))
-        thread.start()
+        if len(clientList) < 2:
+            client, address = server.accept()
+            print("New user IP and Port: {}".format(str(address)))  
+            client.send('USERNAME'.encode('utf-8'))
+            username = client.recv(1024).decode('utf-8')
+            usernameList.append(username)
+            clientList.append(client)
+            print("New user's username is {}".format(username))
+            #TODO give each user unique id, probably set id to a counter
+            #send_message("New user {} joined".format(username).encode('utf-8'))
+            #client.send('You have connected to server'.encode('utf-8'))
+            thread = threading.Thread(target=client_handler, args=(client,))
+            thread.start()
 
 receive()
