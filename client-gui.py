@@ -58,7 +58,6 @@ class Client(object):
         
         ''' Create Client socket'''
         self.clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        
 
 
 
@@ -224,23 +223,27 @@ class Client(object):
             
             return False
         
-    
-    ''' Send Message to client '''
+    def get_privateKey(self):
+        try:
+            with open('./secretstuff.txt') as file:
+                text = file.readlines()
+            key = text[1]
+            return int(key[1:key.index(', ')]), int(key[key.index(', ')+2:-1])
+        except:
+            print('error no secret keys stored')
+
+    def public_key_format(self, key):
+        return int(key[1:key.index(', ')]), int(key[key.index(', ') + 2:-1])
+
     def send_message(self):
         msg = self.chatWindow.userInput.text()
-        print("Uname:", self.username)
-        # this fixes doubleed username bug
+
         if self.username == '':
             self.username = msg
         else:
-            msg = f"{self.username.upper()}: {msg}   "
-            
+            msg = f"{self.username.upper()}: {msg}"
+
         try:
-            try:
-                encoded = int.from_bytes(bytes(f'{msg}', 'utf-8'), 'big')
-                msg = int.from_bytes(b'The', 'big')
-            except Exception as e:
-                pass
             self.clientSocket.send(msg.encode('utf-8'))
             self.chatWindow.userInput.clear()
         except Exception as e:
