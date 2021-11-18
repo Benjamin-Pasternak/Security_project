@@ -332,6 +332,13 @@ class Login(QDialog):
 
 if __name__ == "__main__":
     mongodb_atlas_test = mongo.mongodb_atlas_test()
+
+    ''' Fixes High Resolution Display Scaling Bug '''
+    if hasattr(QtCore.Qt, 'AA_EnableHighDpiScaling'):
+        QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
+    if hasattr(QtCore.Qt, 'AA_UseHighDpiPixmaps'):
+        QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)
+
     app=QtWidgets.QApplication(sys.argv)
     client = Client()
     sys.exit(app.exec_())

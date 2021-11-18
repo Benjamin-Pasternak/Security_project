@@ -1,14 +1,20 @@
 import socket
 import threading                                                
 
-#local host
-host = '127.0.0.1'  
+# Host Machine Ip
+hostname = socket.gethostname()
+host = socket.gethostbyname(hostname)
+
 #unreserved port                                                   
 port = 8081
+
+print(f"Host: {hostname} @ {host}")
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)              
 server.bind((host, port))                                               
 server.listen(2)
+
+
 
 #lists of clients accessing server and current usernames
 clientList = []
