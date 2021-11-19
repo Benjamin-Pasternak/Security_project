@@ -192,11 +192,16 @@ class Client(object):
         self.joinServer.setVisible(True)
 
     def show_message(self, message):
+        print("Mes: :",message)
         if message == 'USERNAME':
             #self.chatWindow.chatLog.append("Please enter your username...")
             self.send_message()
-        elif 'USERLIST' in message:
-            userlist = message.replace('USERLIST', '')
+        elif message == "New user "+self.username.upper()+" joined":
+           # print("butwhy")
+            self.chatWindow.chatLog.append(message)
+            self.chatWindow.chatLog.append('You have connected to server')
+        elif "USERLIST" in message:
+            userlist = str(message.replace('USERLIST', ''))
 
             userlist = userlist.replace(self.username.upper(), '')
             userlist = userlist.replace(',', '')
@@ -204,7 +209,8 @@ class Client(object):
             userlist = userlist.replace(']', '')
             userlist = userlist.replace("'", '')
             userlist = userlist.strip()
-
+            print(len(userlist))
+            print(userlist)
             # print('HERE   ',userlist)
             self.userList = userlist
 
@@ -248,6 +254,7 @@ class Client(object):
         if self.first == 1:
             msg = f"{self.username.upper()}: {msg}"
             self.clientSocket.send(msg.encode('utf-8'))
+            self.first = 0
         else:
             try:
                 if self.userList.replace(' ', '') != '':
