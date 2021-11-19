@@ -86,15 +86,20 @@ def rsa_decrypt_message(c, d, n):
 ---------------------------- This is for the signup ----------------------------
 --------------------------------------------------------------------------------
 """
-def gen_public_key():
+def gen_keys():
     p, q = gen_p_q()
     n = gen_n(p, q)
     phi = gen_phi(p, q)
     e = gen_e(phi)
-    return (n, e), e
-def gen_private_key(n, e):
-    d = gen_d(e, n)
-    return (n, d)
+    # n = str(n)
+    # e = str(e)
+    d = gen_d(e, phi)
+
+    return (n,e), (n,d)
+
+# def gen_private_key(n, e):
+#
+#     return d
 
 database = mongodb_atlas_test()
 
@@ -117,15 +122,30 @@ def signup(username, password):
     
 
 def main():
-    p, q = gen_p_q()
-    n = gen_n(p, q)
-    phi = gen_phi(p, q)
-    e = gen_e(phi)
-    d = gen_d(e, phi)
-    print('THE JOKE IS ON YOU')
-    n = 121543145891208210636432592820358575166897868744597769703199475916233427367488688963263007727958174734511591057599153099042046121780789193412468225070481448574695099996303228561669434914612021614545600419827717844058217396781962020194666880805897141128264131999243581998796411571384967202839260199279651585227
-    e = 3
-    d = 81028763927472140424288395213572383444598579163065179802132983944155618244992459308842005151972116489674394038399435399361364081187192795608312150046987632383130066664202152374446289943074681076363733613218478562705478264521308013463111253870598094085509421332829054665864274380923311468559506799519767723485
+    # p, q = gen_p_q()
+    # n = gen_n(p, q)
+    # phi = gen_phi(p, q)
+    # e = gen_e(phi)
+    # d = gen_d(e, phi)
+    public_key, private_key = gen_keys()
+    print("e", public_key[1])
+    print("pub key:", public_key)
+    print("n?", public_key[0])
+    # private_key = gen_private_key(public_key[0], e)
+    test = str(private_key)
+    test = test.replace("(", '')
+    print(test)
+    n = int(test.partition(', ')[0])
+    #n = public_key[0]
+    print(type(n))
+    e = public_key[1]
+    d = private_key[1]
+    print("d", d)
+    # d = private_key[1]
+    # print('THE JOKE IS ON YOU')
+    # n = int(gen_public_key().partition(' ')[0])
+    # e = int(gen_public_key().partition(' ')[2])
+    # d = int(gen_private_key(n, e))
     m = int.from_bytes(b'hi', 'big')
     # print(m)
     c = rsa_encrypt_message(m, e, n)

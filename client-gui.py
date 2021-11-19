@@ -145,11 +145,11 @@ class Client(object):
         if not the:  # if the database does not contain the record
             if confPass == password:  # if passwords match
                 self.username = username
-                public_key, e = rsa2.gen_public_key()
-                print("e",e)
-                print("pub key:", public_key)
-                print("n?",public_key[0] )
-                private_key = rsa2.gen_private_key(public_key[0], e)
+                public_key, private_key = rsa2.gen_keys()
+                # print("e",e)
+                # print("pub key:", public_key)
+                # print("n?",public_key[0] )
+                # private_key = rsa2.gen_private_key(public_key[0], e)
                 print("d", private_key[1] )
                 public_key = str(public_key)
                 private_key = str(private_key)
@@ -163,7 +163,7 @@ class Client(object):
                 #data3  = username +
                 # json_write = json.dumps({'username': username, 'private_key': private_key})
                 with open('secretstuff.txt', 'a') as f:
-                    f.write(username + '\n')
+                    f.write(username + ": ")
                     f.write(str(private_key)+'\n')
                 mongodb_atlas_test.insert_data(data2)
                 self.createAcc.setHidden(True)
@@ -229,6 +229,8 @@ class Client(object):
             print(type(encoded))
             print(encoded)
             key = self.get_privateKey(self.username)
+            key = key.replace('(', '')
+            key = key.replace(')', '')
             n = int(key.partition(', ')[0])
             print(n)
             #d = int(key[key.index(', ') + 2:-1])
@@ -268,19 +270,26 @@ class Client(object):
             with open('./secretstuff.txt') as file:
                 text = file.readlines()
             index = 0
-            if username in text:
-                pass
-            key = text[1]
-            key = key.replace('(', '')
-            key = key.replace(')', '')
-            print(key)
-            #return int(key[1:key.index(', ')]), int(key[key.index(', ') + 2:-1])
-            return str(key)
+            for line in text:
+                if username in line:
+                    key = text[1]
+                    key = key.partition(': ')[2]
+                    print("key:",key)
+                    key = key.replace('(', '')
+                    key = key.replace(')', '')
+                    print(key)
+                    #return int(key[1:key.index(', ')]), int(key[key.index(', ') + 2:-1])
+                    return str(key)
+                #print("OW")
         except:
             print('error no secret keys stored')
 
     def public_key_format(self, key):
-        return int(key[1:key.index(', ')]), int(key[key.index(', ') + 2:-1])
+        key = key.replace('(', '')
+        key = key.replace(')', '')
+        n = int(key.partition(', ')[0])
+        e = int(key.partition(', ')[2])
+        return n, e
 
     def send_message(self):
         msg = self.chatWindow.userInput.text()
@@ -294,7 +303,9 @@ class Client(object):
                     encoded = int.from_bytes(bytes(msg, 'utf-8'), 'big')
                     # userlist is now empty
                     temp = mongodb_atlas_test.get_data(self.userList)
+                    print(temp[0]['publicKey'])
                     n, e = self.public_key_format(temp[0]['publicKey'])
+
                     c = rsa2.rsa_encrypt_message(encoded, e, n)
                     c = str(c)
 
@@ -306,7 +317,10 @@ class Client(object):
                     encoded = int.from_bytes(bytes(msg, 'utf-8'), 'big')
                     # userlist is now empty
                     temp = mongodb_atlas_test.get_data(self.username)
+                    print(temp[0]['publicKey'])
                     n, e = self.public_key_format(temp[0]['publicKey'])
+                    print(n)
+                    print(e)
                     c = rsa2.rsa_encrypt_message(encoded, e, n)
                     c = str(c)
                     print(c)
