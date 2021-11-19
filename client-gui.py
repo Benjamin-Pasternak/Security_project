@@ -8,28 +8,26 @@ from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtWidgets import QDialog, QApplication
 from PyQt5.uic import loadUi
 import json
-
+from threading import Event
 
 
 class Client(object):
-    
+
     def __init__(self):
-        
+
         self.username = ''
 
-       # mongodb_atlas_test = mongodb_atlas_test()
+        # mongodb_atlas_test = mongodb_atlas_test()
         ''' Setup Join Server Window '''
         self.joinServer = JoinServer()
-       # self.joinServer.show()
+        # self.joinServer.show()
         self.joinServer.setHidden(True)
         self.joinServer.setFixedWidth(480)
         self.joinServer.setFixedHeight(620)
-        
+
         ''' Join Server Window Buttons'''
         self.joinServer.connectButton.clicked.connect(self.connectToServer)
-        
-        
-        
+
         ''' Setup Login Window '''
         self.loginUI = Login()
         self.loginUI.setHidden(True)
@@ -43,7 +41,7 @@ class Client(object):
         ''' Setup Account Creation '''
         self.createAcc = CreateAccount()
         self.createAcc.setHidden(True)
-       # self.createAcc.show()
+        # self.createAcc.show()
         self.createAcc.setFixedHeight(620)
         self.createAcc.setFixedWidth(480)
 
@@ -55,39 +53,35 @@ class Client(object):
         self.chatWindow.sendButton.clicked.connect(self.send_message)
         self.chatWindow.disconnectButton_2.clicked.connect(self.logout)
         self.chatWindow.disconnectButton.clicked.connect(self.disconnect)
-        
+
         ''' Create Client socket'''
         self.clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        
-
-
 
     '''             Client Functions
     ==============================================================='''
-    
+
     ''' Handles client connection and setup
         Uses connect() helper to manage client connection
         Manages frame transition
         Starts thread for receiving messages
-    '''    
+    '''
+
     def connectToServer(self):
         host = self.joinServer.server.text()
         port = self.joinServer.port.text()
-        
+
         print(f"{host}:{port}")
-        
+
         if self.connect(host, int(port)):
-            
             self.joinServer.setHidden(True)
             self.chatWindow.setVisible(True)
-            
-            
-            
-            self.recv_thread = ReceiveThread(self.clientSocket)
+
+            self.recv_thread = ReceiveThread(self.clientSocket, Stop)
             self.recv_thread.signal.connect(self.show_message)
             self.recv_thread.start()
             print("[CLIENT]: Recv thread started...")
-
+            #self.recv_thread.exit()
+            #print("[CLIENT]: Recv thread ended...")
     def login(self):
         '''
             [Called on loginButton press]
@@ -111,7 +105,6 @@ class Client(object):
         # passtemp = rsa2.hash_password(passtemp)
         print(f"{username}: {password}")
 
-
         """
         VALIDATE USER DATA, IF LOGIN SUCCESFUL TRANSTION TO MAIN CHAT WINDOW
         """
@@ -121,7 +114,7 @@ class Client(object):
             self.loginUI.setHidden(True)
             self.joinServer.setVisible(True)
         else:
-           self.show_error('Login Error', 'Wrong Username or Password')
+            self.show_error('Login Error', 'Wrong Username or Password')
 
     def movetocreate(self):
         '''
@@ -146,7 +139,7 @@ class Client(object):
         # num = num + 12
         # temp = temp[num:]
         # num2 = temp.find("'")
-        #usetemp = temp[:num2]
+        # usetemp = temp[:num2]
         if not the:  # if the database does not contain the record
             if confPass == password:  # if passwords match
                 self.username = username
@@ -174,7 +167,6 @@ class Client(object):
         else:
             self.show_error('Account Creation Error', 'Username taken')
 
-
     def logout(self):
         '''
             [Called on logout press]
@@ -182,7 +174,8 @@ class Client(object):
         *redirects to home frame when succesful
         '''
         self.username = ''
-        #self.recv_thread.end()
+        #self.recv_thread.join()
+        Stop.set()
         self.clientSocket.close()
         self.chatWindow.setHidden(True)
         self.loginUI.setVisible(True)
@@ -194,23 +187,25 @@ class Client(object):
         *redirects to home frame when succesful
         '''
         self.username = ''
-       # self.recv_thread.end()
+        #self.recv_thread.end()
+        Stop.set()
         self.clientSocket.close()
         self.chatWindow.setHidden(True)
         self.joinServer.setVisible(True)
 
-    ''' Display received message in chat log '''    
+    ''' Display received message in chat log '''
+
     def show_message(self, message):
         if message == 'USERNAME':
             self.chatWindow.chatLog.append("Please enter your username...")
             self.send_message()
         else:
             self.chatWindow.chatLog.append(message)
-        
-        
-    ''' Connect client to server'''    
+
+    ''' Connect client to server'''
+
     def connect(self, host, port):
-        
+
         try:
             self.clientSocket.connect((host, int(port)))
             print(f"[CLIENT]: Connected to server {host}:{port}...")
@@ -221,26 +216,30 @@ class Client(object):
             self.show_error("Server Error", error_msg)
             self.joinServer.server.clear()
             self.joinServer.port.clear()
-            
+
             return False
-        
-    
-    ''' Send Message to client '''
+
+    def get_privateKey(self):
+        try:
+            with open('./secretstuff.txt') as file:
+                text = file.readlines()
+            key = text[1]
+            return int(key[1:key.index(', ')]), int(key[key.index(', ') + 2:-1])
+        except:
+            print('error no secret keys stored')
+
+    def public_key_format(self, key):
+        return int(key[1:key.index(', ')]), int(key[key.index(', ') + 2:-1])
+
     def send_message(self):
         msg = self.chatWindow.userInput.text()
-        print("Uname:", self.username)
-        # this fixes doubleed username bug
+
         if self.username == '':
             self.username = msg
         else:
-            msg = f"{self.username.upper()}: {msg}   "
-            
+            msg = f"{self.username.upper()}: {msg}"
+
         try:
-            try:
-                encoded = int.from_bytes(bytes(f'{msg}', 'utf-8'), 'big')
-                msg = int.from_bytes(b'The', 'big')
-            except Exception as e:
-                pass
             self.clientSocket.send(msg.encode('utf-8'))
             self.chatWindow.userInput.clear()
         except Exception as e:
@@ -248,32 +247,34 @@ class Client(object):
             print("[CLIENT]:", error_msg)
             self.show_error("Server Error", error_msg)
 
-
-
     ''' Creates a message box to display error messages'''
-    def show_error(self, error_type, message):
-            errorDialog = QtWidgets.QMessageBox()
-            errorDialog.setText(message)
-            errorDialog.setWindowTitle(error_type)
-            errorDialog.setStandardButtons(QtWidgets.QMessageBox.Ok)
-            errorDialog.exec_()
 
+    def show_error(self, error_type, message):
+        errorDialog = QtWidgets.QMessageBox()
+        errorDialog.setText(message)
+        errorDialog.setWindowTitle(error_type)
+        errorDialog.setStandardButtons(QtWidgets.QMessageBox.Ok)
+        errorDialog.exec_()
 
 
 ''' Class to handle receiving messages from thread using pyqt signals'''
+
+
 class ReceiveThread(QtCore.QThread):
     signal = QtCore.pyqtSignal(str)
 
-    def __init__(self, client_socket):
+    def __init__(self, client_socket, stop):
         super(ReceiveThread, self).__init__()
         self.client_socket = client_socket
-        
+        self.StopEvent = stop
+
 
     def run(self):
         while True:
+            if (self.StopEvent.wait(0)):
+                print("Asked to stop")
+                break;
             self.receive_message()
-
-
     def receive_message(self):
 
         while True:
@@ -285,28 +286,21 @@ class ReceiveThread(QtCore.QThread):
             print(message)
             self.signal.emit(message)
 
-
-
 ''' GUI frame classes'''
-        
+
+
 class JoinServer(QDialog):
-    
+
     def __init__(self):
-        
-        super(JoinServer,self).__init__()
-        loadUi("serverInfo.ui",self)
+        super(JoinServer, self).__init__()
+        loadUi("serverInfo.ui", self)
 
-        #self.connectButton.clicked.connect(self.connectToServer)
-
-        
-    
+        # self.connectButton.clicked.connect(self.connectToServer)
 
 
 class ChatWindow(QDialog):
-    
-    
+
     def __init__(self):
-        
         super(ChatWindow, self).__init__()
         loadUi("chat_window.ui", self)
 
@@ -319,19 +313,22 @@ class CreateAccount(QDialog):
 
 
 class Login(QDialog):
-    
+
     def __init__(self):
-        super(Login,self).__init__()
-        loadUi("login.ui",self)
+        super(Login, self).__init__()
+        loadUi("login.ui", self)
         self.password.setEchoMode(QtWidgets.QLineEdit.Password)  # Changes password visability
 
-        
 
 if __name__ == "__main__":
     mongodb_atlas_test = mongo.mongodb_atlas_test()
-    app=QtWidgets.QApplication(sys.argv)
+    Stop = Event()
+    ''' Fixes High Resolution Display Scaling Bug '''
+    if hasattr(QtCore.Qt, 'AA_EnableHighDpiScaling'):
+        QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
+    if hasattr(QtCore.Qt, 'AA_UseHighDpiPixmaps'):
+        QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)
+
+    app = QtWidgets.QApplication(sys.argv)
     client = Client()
     sys.exit(app.exec_())
-        
-        
-        
