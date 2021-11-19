@@ -203,7 +203,7 @@ class Client(object):
         if message == 'USERNAME':
             self.chatWindow.chatLog.append("Please enter your username...")
             self.send_message()
-        elif 'USERLIST' in message:
+        if 'USERLIST' in message:
             userlist = message.replace('USERLIST', '')
 
             userlist = userlist.replace(self.username.upper(), '')
@@ -213,7 +213,7 @@ class Client(object):
             userlist = userlist.replace("'", '')
             userlist = userlist.strip()
 
-            print(userlist)
+            # print('HERE   ',userlist)
             self.userList = userlist
 
         else:
@@ -254,24 +254,26 @@ class Client(object):
     def send_message(self):
         msg = self.chatWindow.userInput.text()
 
-        if self.username == '':
-            self.username = msg
-        else:
-            msg = f"{self.username.upper()}: {msg}"
+
 
         try:
-            encoded = int.from_bytes(bytes(msg, 'utf-8'), 'big')
-            temp = mongodb_atlas_test.get_data(self.username)
-            n, e = self.public_key_format(temp[0]['publicKey'])
-            c = [str(x) for x in rsa2.rsa_encrypt_message(encoded, e, n)]
-            c = ''.join(c)
+            # encoded = int.from_bytes(bytes(msg, 'utf-8'), 'big')
+            # temp = mongodb_atlas_test.get_data(self.userList)
+            # n, e = self.public_key_format(temp[0]['publicKey'])
+            # c = [str(x) for x in rsa2.rsa_encrypt_message(encoded, e, n)]
+            # c = ''.join(c)
 
-            self.clientSocket.send(c.encode('utf-8'))
+            self.clientSocket.send(msg.encode('utf-8'))
             self.chatWindow.userInput.clear()
         except Exception as e:
             error_msg = f"Error while trying to send message...\n{str(e)}"
             print("[CLIENT]:", error_msg)
             self.show_error("Server Error", error_msg)
+
+        if self.username == '':
+            self.username = msg
+        else:
+            msg = f"{self.username.upper()}: {msg}"
 
 
 
