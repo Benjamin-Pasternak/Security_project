@@ -6,7 +6,7 @@ hostname = socket.gethostname()
 host = socket.gethostbyname(hostname)
 
 #unreserved port
-port = 8082
+port = 8081
 
 print(f"Host: {hostname} @ {host}")
 

@@ -127,6 +127,7 @@ def main():
     # print(m)
     c = rsa_encrypt_message(m, e, n)
     print(type(c))
+    print(c)
     m2 = rsa_decrypt_message(c, d, n)
     # print(m2)
     m2 = int(''.join([str(x) for x in m2]))
