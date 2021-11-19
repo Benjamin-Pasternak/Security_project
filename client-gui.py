@@ -259,18 +259,18 @@ class Client(object):
             n, e = self.public_key_format(temp[0]['publicKey'])
             c = [str(x) for x in rsa2.rsa_encrypt_message(encoded, e, n)]
             c = ''.join(c)
-
-            self.clientSocket.send(c.encode('utf-8'))
+            if self.username == '':
+                self.username = msg
+            else:
+                msg = f"{self.username.upper()}: {c}"
+            self.clientSocket.send(msg.encode('utf-8'))
             self.chatWindow.userInput.clear()
         except Exception as e:
             error_msg = f"Error while trying to send message...\n{str(e)}"
             print("[CLIENT]:", error_msg)
             self.show_error("Server Error", error_msg)
 
-        if self.username == '':
-            self.username = msg
-        else:
-            msg = f"{self.username.upper()}: {c}"
+
 
 
 
