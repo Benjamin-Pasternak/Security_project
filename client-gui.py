@@ -206,6 +206,9 @@ class Client(object):
         elif 'USERLIST' in message:
             userlist = message.replace('USERLIST', '')
             userlist = userlist.replace(self.username, '')
+            userlist = userlist.replace('[', '')
+            userlist = userlist.replace(']', '')
+            userlist = userlist.replace("'", '')
             print(userlist)
 
         else:
