@@ -47,6 +47,8 @@ def receive():
 
         client.send('USERNAME'.encode('utf-8'))
         username = client.recv(1024).decode('utf-8')
+        username = username.replace(':', '')
+        username = username.strip()
         usernameList.append(username)
         clientList.append(client)
         print("New user's username is {}".format(username))
