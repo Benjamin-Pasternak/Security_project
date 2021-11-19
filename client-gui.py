@@ -203,9 +203,9 @@ class Client(object):
         if message == 'USERNAME':
             self.chatWindow.chatLog.append("Please enter your username...")
             self.send_message()
-        elif message == 'USERLIST':
-            userlist = message.remove('USERLIST')
-            userlist = userlist.remove(self.username)
+        elif 'USERLIST' in message:
+            userlist = message.replace('USERLIST', '')
+            userlist = userlist.replace(self.username, '')
             print(userlist)
 
         else:
