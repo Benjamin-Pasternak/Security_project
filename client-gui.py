@@ -155,10 +155,11 @@ class Client(object):
                     "password": rsa2.hash_password(password),
                     "publicKey": public_key
                 }
+                #data3  = username +
                 # json_write = json.dumps({'username': username, 'private_key': private_key})
                 with open('secretstuff.txt', 'a') as f:
                     f.write(username + '\n')
-                    f.write(str(private_key))
+                    f.write(str(private_key)+'\n')
                 mongodb_atlas_test.insert_data(data2)
                 self.createAcc.setHidden(True)
                 self.joinServer.setVisible(True)
@@ -215,7 +216,18 @@ class Client(object):
             self.userList = userlist
 
         else:
-            self.chatWindow.chatLog.append(message)
+            encoded = int.from_bytes(bytes(message, 'utf-8'), 'big')
+            # userlist is now empty
+            key = self.get_privateKey(self.username)
+            n = int(key[1:key.index(', ')])
+            d = int(key[key.index(', ') + 2:-1])
+            #n, e = self.public_key_format(temp[0]['publicKey'])
+            c = [str(x) for x in rsa2.rsa_decrypt_message()(encoded, d, n)]
+            c = ''.join(c)
+
+            print(self.userList)
+            msg = f"{self.username.upper()}: {c}"
+            self.chatWindow.chatLog.append(msg)
 
     ''' Connect client to server'''
 
@@ -242,7 +254,8 @@ class Client(object):
             if username in text:
                 pass
             key = text[1]
-            return int(key[1:key.index(', ')]), int(key[key.index(', ') + 2:-1])
+            #return int(key[1:key.index(', ')]), int(key[key.index(', ') + 2:-1])
+            return str(key)
         except:
             print('error no secret keys stored')
 
@@ -270,7 +283,13 @@ class Client(object):
                     self.clientSocket.send(msg.encode('utf-8'))
                     self.chatWindow.userInput.clear()
                 else:
-                    msg = f"{self.username.upper()}: {msg}"
+                    encoded = int.from_bytes(bytes(msg, 'utf-8'), 'big')
+                    # userlist is now empty
+                    temp = mongodb_atlas_test.get_data(self.username)
+                    n, e = self.public_key_format(temp[0]['publicKey'])
+                    c = [str(x) for x in rsa2.rsa_encrypt_message(encoded, e, n)]
+                    c = ''.join(c)
+                    msg = f"{self.username.upper()}: {c}"
                     self.clientSocket.send(msg.encode('utf-8'))
                     self.chatWindow.userInput.clear()
             except Exception as e:
