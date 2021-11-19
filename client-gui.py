@@ -8,7 +8,6 @@ from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtWidgets import QDialog, QApplication
 from PyQt5.uic import loadUi
 import json
-from threading import Event
 
 
 class Client(object):
@@ -16,7 +15,7 @@ class Client(object):
     def __init__(self):
 
         self.username = ''
-
+        self.first = 1
         # mongodb_atlas_test = mongodb_atlas_test()
         ''' Setup Join Server Window '''
         self.joinServer = JoinServer()
@@ -57,6 +56,9 @@ class Client(object):
         ''' Create Client socket'''
         self.clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
+        ''' User list dynamic'''
+        self.userList = ''
+
     '''             Client Functions
     ==============================================================='''
 
@@ -76,12 +78,11 @@ class Client(object):
             self.joinServer.setHidden(True)
             self.chatWindow.setVisible(True)
 
-            self.recv_thread = ReceiveThread(self.clientSocket, Stop)
+            self.recv_thread = ReceiveThread(self.clientSocket)
             self.recv_thread.signal.connect(self.show_message)
             self.recv_thread.start()
             print("[CLIENT]: Recv thread started...")
-            #self.recv_thread.exit()
-            #print("[CLIENT]: Recv thread ended...")
+
     def login(self):
         '''
             [Called on loginButton press]
@@ -149,10 +150,9 @@ class Client(object):
                 private_key = str(private_key)
                 # print(public_key)
                 # print(private_key)
-                temppass = rsa2.hash_password(password)
                 data2 = {
                     "username": username,
-                    "password": temppass,
+                    "password": rsa2.hash_password(password),
                     "publicKey": public_key
                 }
                 # json_write = json.dumps({'username': username, 'private_key': private_key})
@@ -174,8 +174,7 @@ class Client(object):
         *redirects to home frame when succesful
         '''
         self.username = ''
-        #self.recv_thread.join()
-        Stop.set()
+        # self.recv_thread.end()
         self.clientSocket.close()
         self.chatWindow.setHidden(True)
         self.loginUI.setVisible(True)
@@ -187,18 +186,28 @@ class Client(object):
         *redirects to home frame when succesful
         '''
         self.username = ''
-        #self.recv_thread.end()
-        Stop.set()
+        # self.recv_thread.end()
         self.clientSocket.close()
         self.chatWindow.setHidden(True)
         self.joinServer.setVisible(True)
 
-    ''' Display received message in chat log '''
-
     def show_message(self, message):
         if message == 'USERNAME':
-            self.chatWindow.chatLog.append("Please enter your username...")
+            #self.chatWindow.chatLog.append("Please enter your username...")
             self.send_message()
+        elif 'USERLIST' in message:
+            userlist = message.replace('USERLIST', '')
+
+            userlist = userlist.replace(self.username.upper(), '')
+            userlist = userlist.replace(',', '')
+            userlist = userlist.replace('[', '')
+            userlist = userlist.replace(']', '')
+            userlist = userlist.replace("'", '')
+            userlist = userlist.strip()
+
+            # print('HERE   ',userlist)
+            self.userList = userlist
+
         else:
             self.chatWindow.chatLog.append(message)
 
@@ -219,10 +228,13 @@ class Client(object):
 
             return False
 
-    def get_privateKey(self):
+    def get_privateKey(self, username):
         try:
             with open('./secretstuff.txt') as file:
                 text = file.readlines()
+            index = 0
+            if username in text:
+                pass
             key = text[1]
             return int(key[1:key.index(', ')]), int(key[key.index(', ') + 2:-1])
         except:
@@ -233,19 +245,32 @@ class Client(object):
 
     def send_message(self):
         msg = self.chatWindow.userInput.text()
-
-        if self.username == '':
-            self.username = msg
-        else:
+        if self.first == 1:
             msg = f"{self.username.upper()}: {msg}"
-
-        try:
             self.clientSocket.send(msg.encode('utf-8'))
-            self.chatWindow.userInput.clear()
-        except Exception as e:
-            error_msg = f"Error while trying to send message...\n{str(e)}"
-            print("[CLIENT]:", error_msg)
-            self.show_error("Server Error", error_msg)
+        else:
+            try:
+                if self.userList.replace(' ', '') != '':
+                    encoded = int.from_bytes(bytes(msg, 'utf-8'), 'big')
+                    # userlist is now empty
+                    temp = mongodb_atlas_test.get_data(self.userList)
+                    n, e = self.public_key_format(temp[0]['publicKey'])
+                    c = [str(x) for x in rsa2.rsa_encrypt_message(encoded, e, n)]
+                    c = ''.join(c)
+
+                    print(self.userList)
+                    msg = f"{self.username.upper()}: {c}"
+                    self.clientSocket.send(msg.encode('utf-8'))
+                    self.chatWindow.userInput.clear()
+                else:
+                    msg = f"{self.username.upper()}: {msg}"
+                    self.clientSocket.send(msg.encode('utf-8'))
+                    self.chatWindow.userInput.clear()
+            except Exception as e:
+                print('EXCEPT', self.userList)
+                error_msg = f"Error while trying to send message...\n{str(e)}"
+                print("[CLIENT]:", error_msg)
+                self.show_error("Server Error", error_msg)
 
     ''' Creates a message box to display error messages'''
 
@@ -263,28 +288,26 @@ class Client(object):
 class ReceiveThread(QtCore.QThread):
     signal = QtCore.pyqtSignal(str)
 
-    def __init__(self, client_socket, stop):
+    def __init__(self, client_socket):
         super(ReceiveThread, self).__init__()
         self.client_socket = client_socket
-        self.StopEvent = stop
-
 
     def run(self):
         while True:
-            if (self.StopEvent.wait(0)):
-                print("Asked to stop")
-                break;
             self.receive_message()
+
     def receive_message(self):
 
         while True:
             message = self.client_socket.recv(1024)
+
             if len(message) == 0:
                 break
             message = message.decode()
 
             print(message)
             self.signal.emit(message)
+
 
 ''' GUI frame classes'''
 
@@ -322,7 +345,7 @@ class Login(QDialog):
 
 if __name__ == "__main__":
     mongodb_atlas_test = mongo.mongodb_atlas_test()
-    Stop = Event()
+
     ''' Fixes High Resolution Display Scaling Bug '''
     if hasattr(QtCore.Qt, 'AA_EnableHighDpiScaling'):
         QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
