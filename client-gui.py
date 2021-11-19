@@ -254,18 +254,24 @@ class Client(object):
     def send_message(self):
         msg = self.chatWindow.userInput.text()
         try:
-            encoded = int.from_bytes(bytes(msg, 'utf-8'), 'big')
-            temp = mongodb_atlas_test.get_data(self.userList)
-            n, e = self.public_key_format(temp[0]['publicKey'])
-            c = [str(x) for x in rsa2.rsa_encrypt_message(encoded, e, n)]
-            c = ''.join(c)
-            if self.username == '':
-                self.username = msg
-            else:
+            if self.userList.replace(' ', '') != '':
+                encoded = int.from_bytes(bytes(msg, 'utf-8'), 'big')
+                # userlist is now empty
+                temp = mongodb_atlas_test.get_data(self.userList)
+                n, e = self.public_key_format(temp[0]['publicKey'])
+                c = [str(x) for x in rsa2.rsa_encrypt_message(encoded, e, n)]
+                c = ''.join(c)
+
+                print(self.userList)
                 msg = f"{self.username.upper()}: {c}"
-            self.clientSocket.send(msg.encode('utf-8'))
-            self.chatWindow.userInput.clear()
+                self.clientSocket.send(msg.encode('utf-8'))
+                self.chatWindow.userInput.clear()
+            else:
+                msg = f"{self.username.upper()}: {msg}"
+                self.clientSocket.send(msg.encode('utf-8'))
+                self.chatWindow.userInput.clear()
         except Exception as e:
+            print('EXCEPT',self.userList)
             error_msg = f"Error while trying to send message...\n{str(e)}"
             print("[CLIENT]:", error_msg)
             self.show_error("Server Error", error_msg)
