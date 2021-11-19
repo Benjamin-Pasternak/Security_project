@@ -58,11 +58,9 @@ def receive():
 
         usernameList2 = 'USERLIST' + str(usernameList)
 
-
-        
         print(usernameList2)
         
-        client.send(usernameList2.encode('utf-8'))
+        send_message(usernameList2.encode('utf-8'))
 
 
         thread = threading.Thread(target=client_handler, args=(client,))
