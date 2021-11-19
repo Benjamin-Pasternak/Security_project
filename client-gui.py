@@ -211,7 +211,7 @@ class Client(object):
             userlist = userlist.strip()
             print(len(userlist))
             print(userlist)
-            # print('HERE   ',userlist)
+           # print('HERE   ',userlist)
             self.userList = userlist
 
         else:

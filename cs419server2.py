@@ -19,7 +19,7 @@ server.listen(2)
 # lists of clients accessing server and current usernames
 clientList = []
 usernameList = []
-thread = threading.Thread
+#thread = threading.Thread
 
 def send_message(message):
     for client in clientList:
@@ -69,25 +69,27 @@ def receive():
         # for client in clientList:
         #     client.send(usernameList2.encode('utf-8'))
         send_message(usernameList2.encode('utf-8'))
-        recv_thread = ReceiveThread(client, Stop)
-        recv_thread.start()
-        print("bout to join")
-        recv_thread.join()
-        print("joined")
-class ReceiveThread(Thread):
-
-
-    def __init__(self,client, stop):
-        Thread.__init__(self)
-        self.StopEvent = stop
-        self.client = client
-
-    def run(self):
-        while True:
-            client_handler(self.client)
-            if (self.StopEvent.wait(0)):
-                print("Asked to stop")
-                break;
+        thread = threading.Thread(target=client_handler, args=(client,))
+        thread.start()
+        # recv_thread = ReceiveThread(client, Stop)
+        # recv_thread.start()
+        # print("bout to join")
+        # recv_thread.join()
+        # print("joined")
+# class ReceiveThread(Thread):
+#
+#
+#     def __init__(self,client, stop):
+#         Thread.__init__(self)
+#         self.StopEvent = stop
+#         self.client = client
+#
+#     def run(self):
+#         while True:
+#             client_handler(self.client)
+#             if (self.StopEvent.wait(0)):
+#                 print("Asked to stop")
+#                 break;
 
 
 Stop = Event()
