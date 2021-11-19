@@ -8,6 +8,7 @@ from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtWidgets import QDialog, QApplication
 from PyQt5.uic import loadUi
 import json
+import ast
 
 
 class Client(object):
@@ -145,7 +146,11 @@ class Client(object):
             if confPass == password:  # if passwords match
                 self.username = username
                 public_key, e = rsa2.gen_public_key()
+                print("e",e)
+                print("pub key:", public_key)
+                print("n?",public_key[0] )
                 private_key = rsa2.gen_private_key(public_key[0], e)
+                print("d", private_key[1] )
                 public_key = str(public_key)
                 private_key = str(private_key)
                 # print(public_key)
@@ -216,16 +221,28 @@ class Client(object):
             self.userList = userlist
 
         else:
-            encoded = int.from_bytes(bytes(message, 'utf-8'), 'big')
+            #encoded = int.from_bytes(bytes(message, 'utf-8'), 'big')
             # userlist is now empty
+            encoded = message.partition(': ')[2]
+           # print(type(encoded))
+            encoded = ast.literal_eval(encoded)
+            print(type(encoded))
+            print(encoded)
             key = self.get_privateKey(self.username)
-            n = int(key[1:key.index(', ')])
-            d = int(key[key.index(', ') + 2:-1])
+            n = int(key.partition(', ')[0])
+            print(n)
+            #d = int(key[key.index(', ') + 2:-1])
+            d = int(key.partition(', ')[2])
+            print(d)
             #n, e = self.public_key_format(temp[0]['publicKey'])
-            c = [str(x) for x in rsa2.rsa_decrypt_message()(encoded, d, n)]
-            c = ''.join(c)
+            #m2 = int(''.join())
+            c = rsa2.rsa_decrypt_message(encoded, d, n)
 
-            print(self.userList)
+            print("here",c)
+            c = int(''.join([str(x) for x in c]))
+            #c = c.to_bytes((c.bit_length()+7)//8,'big')
+            c = c.to_bytes((c.bit_length() + 7) // 8, 'big').decode('utf-8')
+            print(c)
             msg = f"{self.username.upper()}: {c}"
             self.chatWindow.chatLog.append(msg)
 
@@ -254,6 +271,9 @@ class Client(object):
             if username in text:
                 pass
             key = text[1]
+            key = key.replace('(', '')
+            key = key.replace(')', '')
+            print(key)
             #return int(key[1:key.index(', ')]), int(key[key.index(', ') + 2:-1])
             return str(key)
         except:
@@ -275,8 +295,8 @@ class Client(object):
                     # userlist is now empty
                     temp = mongodb_atlas_test.get_data(self.userList)
                     n, e = self.public_key_format(temp[0]['publicKey'])
-                    c = [str(x) for x in rsa2.rsa_encrypt_message(encoded, e, n)]
-                    c = ''.join(c)
+                    c = rsa2.rsa_encrypt_message(encoded, e, n)
+                    c = str(c)
 
                     print(self.userList)
                     msg = f"{self.username.upper()}: {c}"
@@ -287,8 +307,9 @@ class Client(object):
                     # userlist is now empty
                     temp = mongodb_atlas_test.get_data(self.username)
                     n, e = self.public_key_format(temp[0]['publicKey'])
-                    c = [str(x) for x in rsa2.rsa_encrypt_message(encoded, e, n)]
-                    c = ''.join(c)
+                    c = rsa2.rsa_encrypt_message(encoded, e, n)
+                    c = str(c)
+                    print(c)
                     msg = f"{self.username.upper()}: {c}"
                     self.clientSocket.send(msg.encode('utf-8'))
                     self.chatWindow.userInput.clear()
