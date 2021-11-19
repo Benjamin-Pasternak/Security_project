@@ -253,17 +253,14 @@ class Client(object):
 
     def send_message(self):
         msg = self.chatWindow.userInput.text()
-
-
-
         try:
-            # encoded = int.from_bytes(bytes(msg, 'utf-8'), 'big')
-            # temp = mongodb_atlas_test.get_data(self.userList)
-            # n, e = self.public_key_format(temp[0]['publicKey'])
-            # c = [str(x) for x in rsa2.rsa_encrypt_message(encoded, e, n)]
-            # c = ''.join(c)
+            encoded = int.from_bytes(bytes(msg, 'utf-8'), 'big')
+            temp = mongodb_atlas_test.get_data(self.userList)
+            n, e = self.public_key_format(temp[0]['publicKey'])
+            c = [str(x) for x in rsa2.rsa_encrypt_message(encoded, e, n)]
+            c = ''.join(c)
 
-            self.clientSocket.send(msg.encode('utf-8'))
+            self.clientSocket.send(c.encode('utf-8'))
             self.chatWindow.userInput.clear()
         except Exception as e:
             error_msg = f"Error while trying to send message...\n{str(e)}"
@@ -273,7 +270,7 @@ class Client(object):
         if self.username == '':
             self.username = msg
         else:
-            msg = f"{self.username.upper()}: {msg}"
+            msg = f"{self.username.upper()}: {c}"
 
 
 
