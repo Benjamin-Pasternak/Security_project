@@ -59,6 +59,8 @@ class Client(object):
         ''' Create Client socket'''
         self.clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
+        ''' User list dynamic'''
+        self.userList = ''
 
 
     '''             Client Functions
@@ -155,10 +157,9 @@ class Client(object):
                 private_key = str(private_key)
                 # print(public_key)
                 # print(private_key)
-                temppass = rsa2.hash_password(password)
                 data2 = {
                     "username": username,
-                    "password": temppass,
+                    "password": rsa2.hash_password(password),
                     "publicKey": public_key
                 }
                 # json_write = json.dumps({'username': username, 'private_key': private_key})
@@ -198,11 +199,23 @@ class Client(object):
         self.chatWindow.setHidden(True)
         self.joinServer.setVisible(True)
 
-    ''' Display received message in chat log '''    
     def show_message(self, message):
         if message == 'USERNAME':
             self.chatWindow.chatLog.append("Please enter your username...")
             self.send_message()
+        elif 'USERLIST' in message:
+            userlist = message.replace('USERLIST', '')
+
+            userlist = userlist.replace(self.username.upper(), '')
+            userlist = userlist.replace(',', '')
+            userlist = userlist.replace('[', '')
+            userlist = userlist.replace(']', '')
+            userlist = userlist.replace("'", '')
+            userlist = userlist.strip()
+
+            print(userlist)
+            self.userList = userlist
+
         else:
             self.chatWindow.chatLog.append(message)
         
@@ -223,10 +236,13 @@ class Client(object):
             
             return False
         
-    def get_privateKey(self):
+    def get_privateKey(self, username):
         try:
             with open('./secretstuff.txt') as file:
                 text = file.readlines()
+            index = 0
+            if username in text:
+                pass
             key = text[1]
             return int(key[1:key.index(', ')]), int(key[key.index(', ')+2:-1])
         except:
@@ -244,7 +260,13 @@ class Client(object):
             msg = f"{self.username.upper()}: {msg}"
 
         try:
-            self.clientSocket.send(msg.encode('utf-8'))
+            encoded = int.from_bytes(bytes(msg, 'utf-8'), 'big')
+            temp = mongodb_atlas_test.get_data(self.username)
+            n, e = self.public_key_format(temp[0]['publicKey'])
+            c = [str(x) for x in rsa2.rsa_encrypt_message(encoded, e, n)]
+            c = ''.join(c)
+
+            self.clientSocket.send(c.encode('utf-8'))
             self.chatWindow.userInput.clear()
         except Exception as e:
             error_msg = f"Error while trying to send message...\n{str(e)}"
@@ -281,6 +303,7 @@ class ReceiveThread(QtCore.QThread):
 
         while True:
             message = self.client_socket.recv(1024)
+
             if len(message) == 0:
                 break
             message = message.decode()

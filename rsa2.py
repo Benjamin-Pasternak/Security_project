@@ -126,7 +126,7 @@ def main():
     m = int.from_bytes(b'THE JOKE IS ON YOU', 'big')
     # print(m)
     c = rsa_encrypt_message(m, e, n)
-    # print(c)
+    print(type(c))
     m2 = rsa_decrypt_message(c, d, n)
     # print(m2)
     m2 = int(''.join([str(x) for x in m2]))
@@ -141,8 +141,8 @@ def main():
 
 
 
-# if __name__ == '__main__':
-#     main()
+if __name__ == '__main__':
+    main()
 
 
     
