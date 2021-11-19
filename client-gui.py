@@ -205,10 +205,14 @@ class Client(object):
             self.send_message()
         elif 'USERLIST' in message:
             userlist = message.replace('USERLIST', '')
-            userlist = userlist.replace(self.username, '')
+            
+            userlist = userlist.replace(self.username.upper(), '')
+            userlist = userlist.replace(',', '')
             userlist = userlist.replace('[', '')
             userlist = userlist.replace(']', '')
             userlist = userlist.replace("'", '')
+            userlist = userlist.strip()
+            
             print(userlist)
 
         else:
