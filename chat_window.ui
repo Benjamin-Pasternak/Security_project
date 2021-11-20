@@ -6,30 +6,48 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>737</width>
-    <height>548</height>
+    <width>879</width>
+    <height>645</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Secure Chat</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">background-color:rgb(54, 54, 54)</string>
+   <string notr="true">background-color:#210f32</string>
+  </property>
+  <property name="sizeGripEnabled">
+   <bool>true</bool>
   </property>
   <widget class="QWidget" name="verticalLayoutWidget">
    <property name="geometry">
     <rect>
-     <x>209</x>
-     <y>59</y>
-     <width>481</width>
-     <height>301</height>
+     <x>200</x>
+     <y>80</y>
+     <width>651</width>
+     <height>411</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>Tahoma</family>
+     <pointsize>18</pointsize>
+    </font>
+   </property>
+   <property name="styleSheet">
+    <string>color:#ffc857</string>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
      <widget class="QTextEdit" name="chatLog">
+      <property name="font">
+       <font>
+        <family>Tahoma</family>
+        <pointsize>12</pointsize>
+       </font>
+      </property>
       <property name="styleSheet">
-       <string notr="true">color:rgb(235, 235, 235)</string>
+       <string notr="true">color:#eafdf8</string>
       </property>
       <property name="readOnly">
        <bool>true</bool>
@@ -38,30 +56,24 @@
     </item>
    </layout>
   </widget>
-  <widget class="QLineEdit" name="userInput">
-   <property name="geometry">
-    <rect>
-     <x>40</x>
-     <y>409</y>
-     <width>541</width>
-     <height>41</height>
-    </rect>
-   </property>
-   <property name="styleSheet">
-    <string notr="true">color:rgb(229, 229, 229); font-size: 16pt;</string>
-   </property>
-  </widget>
   <widget class="QPushButton" name="sendButton">
    <property name="geometry">
     <rect>
-     <x>610</x>
-     <y>420</y>
+     <x>770</x>
+     <y>550</y>
      <width>75</width>
      <height>23</height>
     </rect>
    </property>
+   <property name="font">
+    <font>
+     <family>Tahoma</family>
+     <weight>75</weight>
+     <bold>true</bold>
+    </font>
+   </property>
    <property name="styleSheet">
-    <string notr="true">background-color:rgb(186, 186, 186)</string>
+    <string notr="true">background-color:#eafdf8; color:#210f32</string>
    </property>
    <property name="text">
     <string>Send</string>
@@ -70,14 +82,21 @@
   <widget class="QPushButton" name="disconnectButton">
    <property name="geometry">
     <rect>
-     <x>230</x>
-     <y>500</y>
+     <x>70</x>
+     <y>460</y>
      <width>75</width>
      <height>23</height>
     </rect>
    </property>
+   <property name="font">
+    <font>
+     <family>Tahoma</family>
+     <weight>75</weight>
+     <bold>true</bold>
+    </font>
+   </property>
    <property name="styleSheet">
-    <string notr="true">background-color:rgb(186, 186, 186)</string>
+    <string notr="true">background-color:#eafdf8; color:#210f32</string>
    </property>
    <property name="text">
     <string>Disconnect</string>
@@ -89,14 +108,23 @@
      <x>39</x>
      <y>130</y>
      <width>141</width>
-     <height>231</height>
+     <height>311</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>Tahoma</family>
+     <pointsize>18</pointsize>
+    </font>
+   </property>
+   <property name="styleSheet">
+    <string>color:#ffc857</string>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout_2">
     <item>
      <widget class="QTextEdit" name="activeUsers">
       <property name="styleSheet">
-       <string notr="true">color:rgb(235, 235, 235)</string>
+       <string notr="true">color:#eafdf8</string>
       </property>
       <property name="readOnly">
        <bool>true</bool>
@@ -108,14 +136,23 @@
   <widget class="QLabel" name="label">
    <property name="geometry">
     <rect>
-     <x>30</x>
+     <x>40</x>
      <y>20</y>
      <width>141</width>
      <height>51</height>
     </rect>
    </property>
+   <property name="font">
+    <font>
+     <family>Tahoma</family>
+     <pointsize>18</pointsize>
+    </font>
+   </property>
    <property name="styleSheet">
-    <string notr="true">color:rgb(218, 120, 205); font-size:18pt;</string>
+    <string notr="true">color:#ffc857</string>
+   </property>
+   <property name="frameShape">
+    <enum>QFrame::Box</enum>
    </property>
    <property name="text">
     <string>Secure Chat</string>
@@ -130,8 +167,14 @@
      <height>21</height>
     </rect>
    </property>
+   <property name="font">
+    <font>
+     <family>Tahoma</family>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
    <property name="styleSheet">
-    <string notr="true">color:rgb(218, 120, 205); font-size:12pt;</string>
+    <string notr="true">color:#ffc857</string>
    </property>
    <property name="text">
     <string>Active Users:</string>
@@ -140,17 +183,34 @@
   <widget class="QPushButton" name="disconnectButton_2">
    <property name="geometry">
     <rect>
-     <x>460</x>
-     <y>500</y>
+     <x>770</x>
+     <y>30</y>
      <width>75</width>
      <height>23</height>
     </rect>
    </property>
+   <property name="font">
+    <font>
+     <family>Tahoma</family>
+     <weight>75</weight>
+     <bold>true</bold>
+    </font>
+   </property>
    <property name="styleSheet">
-    <string notr="true">background-color:rgb(186, 186, 186)</string>
+    <string notr="true">background-color:#eafdf8; color:#210f32</string>
    </property>
    <property name="text">
     <string>Logout</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="userInput">
+   <property name="geometry">
+    <rect>
+     <x>200</x>
+     <y>540</y>
+     <width>550</width>
+     <height>40</height>
+    </rect>
    </property>
   </widget>
  </widget>
