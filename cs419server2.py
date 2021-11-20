@@ -25,39 +25,38 @@ clientList = []
 usernameList = []
 #thread = threading.Thread
 
-def send_message(message, usernamesent):
+def send_message(message, usernamesend):
     print(message)
-    if message != "New user {} joined".format(usernamesent) and '{} left'.format(usernamesent):
-        for client in clientList:
-            username = usernameList[clientList.index(client)]
-            encoded = int.from_bytes(bytes(message, 'utf-8'), 'big')
-            temp = mongodb_atlas_test.get_data(username)
-            print(temp[0]['publicKey'])
-            key = temp[0]['publicKey']
-            key = key.replace('(', '')
-            key = key.replace(')', '')
-            n = int(key.partition(', ')[0])
-            e = int(key.partition(', ')[2])
-            print(n)
-            print(e)
-            c = rsa2.rsa_encrypt_message(encoded, e, n)
-            c = str(c)
-            print(c)
-            msg = f"{username.upper()}: {c}"
-            print(msg)
-            client.send(msg.encode("utf-8"))
-    else:
-        print("behere")
-        for client in clientList:
-            client.send(message.encode("utf-8"))
+    for client in clientList:
+        username = usernameList[clientList.index(client)]
+        print(username)
+        encoded = int.from_bytes(bytes(message, 'utf-8'), 'big')
+        temp = mongodb_atlas_test.get_data(username)
+        print(temp[0]['publicKey'])
+        key = temp[0]['publicKey']
+        key = key.replace('(', '')
+        key = key.replace(')', '')
+        n = int(key.partition(', ')[0])
+        e = int(key.partition(', ')[2])
+        print(n)
+        print(e)
+        c = rsa2.rsa_encrypt_message(encoded, e, n)
+        c = str(c)
+        print(c)
+        msg = f"{usernamesend.upper()}: {c}"
+        print(msg)
+        client.send(msg.encode("utf-8"))
 
-
+def send_greeting(message):
+    for client in clientList:
+        client.send(message.encode("utf-8"))
 
 # client handler: receive and send client messages and check if they left. If left, then remove from lists
 def client_handler(client):
     while True:
         try:
             message = client.recv(1024).decode("utf-8")
+            username= message.partition(': ')[0]
             encoded = message.partition(': ')[2]
             #username = message.partition(': ')[0]
             # # print(type(encoded))
@@ -77,13 +76,13 @@ def client_handler(client):
             # # c = c.to_bytes((c.bit_length()+7)//8,'big')
             c = c.to_bytes((c.bit_length() + 7) // 8, 'big').decode('utf-8')
             print(c)
-            send_message(c, "ignore")
+            send_message(c, username)
         except:
             clientIndex = clientList.index(client)
             clientList.remove(client)
             client.close()
             username = usernameList[clientIndex]
-            send_message('{} left'.format(username), username)
+            send_greeting('{} left'.format(username))
             usernameList.remove(username)
             Stop.set()
             break
@@ -106,8 +105,9 @@ def receive():
 
         # TODO give each user unique id, probably set id to a counter
 
-        send_message("New user {} joined".format(username), username)
+        send_greeting("New user {} joined".format(username))
         client.send('You have connected to server'.encode('utf-8'))
+        print("ready")
         # usernameList2 = 'USERLIST' + str(usernameList)
         #
         # # print(usernameList2)

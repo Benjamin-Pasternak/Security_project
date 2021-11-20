@@ -206,7 +206,7 @@ class Client(object):
         elif message == 'You have connected to server':
             self.chatWindow.chatLog.append("You have connected to server")
             #self.send_message()
-        elif message == "New user "+self.username.upper()+" joined":
+        elif "New user" in message and "joined" in message:
             # print("butwhy")
              self.chatWindow.chatLog.append(message)
              #self.chatWindow.chatLog.append('You have connected to server')
@@ -227,6 +227,8 @@ class Client(object):
         else:
             #encoded = int.from_bytes(bytes(message, 'utf-8'), 'big')
             # userlist is now empty
+            user = message.partition(': ')[0]
+            print(user)
             encoded = message.partition(': ')[2]
            # print(type(encoded))
             encoded = ast.literal_eval(encoded)
@@ -249,7 +251,7 @@ class Client(object):
             #c = c.to_bytes((c.bit_length()+7)//8,'big')
             c = c.to_bytes((c.bit_length() + 7) // 8, 'big').decode('utf-8')
             print(c)
-            msg = f"{self.username.upper()}: {c}"
+            msg = f"{user.upper()}: {c}"
             self.chatWindow.chatLog.append(msg)
 
     ''' Connect client to server'''
