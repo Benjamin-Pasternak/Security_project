@@ -277,8 +277,11 @@ class Client(object):
                 text = file.readlines()
             index = 0
             for line in text:
+                print(line)
                 if username in line:
-                    key = text[1]
+                    print(line)
+                   #print(text[]1)
+                    key = line
                     key = key.partition(': ')[2]
                     print("key:",key)
                     key = key.replace('(', '')
