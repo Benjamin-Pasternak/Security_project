@@ -7,8 +7,13 @@ from PyQt5.uic import loadUi
 class Login(QDialog):
     
     def __init__(self):
+<<<<<<< HEAD
         super(Login, self).__init__()
         loadUi("login.ui", self)
+=======
+        super(Login,self).__init__()
+        loadUi("login.ui",self)
+>>>>>>> 26a417eb8a5a347b0a76522e2d65551ed438962b
         
         #self.titleLabel.adjustSize()
         
@@ -33,8 +38,14 @@ class Login(QDialog):
         VALIDATE USER DATA, IF LOGIN SUCCESFUL TRANSTION TO MAIN CHAT WINDOW
         """
        
+<<<<<<< HEAD
         self.goToServerInfo()
 
+=======
+        self.goToServerInfo
+        
+        
+>>>>>>> 26a417eb8a5a347b0a76522e2d65551ed438962b
         
         ''' Frame Transition Functions''' 
         
@@ -63,14 +74,32 @@ class Login(QDialog):
         widget.setCurrentIndex(widget.currentIndex()+1)
         widget.setFixedWidth(720)
         widget.setFixedHeight(620)    
+<<<<<<< HEAD
 
         
+=======
+        
+    
+       
+        
+     
+
+        
+        
+         
+        
+>>>>>>> 26a417eb8a5a347b0a76522e2d65551ed438962b
 class CreateAccount(QDialog):
     
     def __init__(self):
         
+<<<<<<< HEAD
         super(CreateAccount, self).__init__()
         loadUi("createAccount.ui", self)
+=======
+        super(CreateAccount,self).__init__()
+        loadUi("createAccount.ui",self)
+>>>>>>> 26a417eb8a5a347b0a76522e2d65551ed438962b
         
         self.signupButton.clicked.connect(self.createAccount)
         self.password.setEchoMode(QtWidgets.QLineEdit.Password)
@@ -108,6 +137,7 @@ class ChatWindow(QDialog):
     
     def __init__(self):
         
+<<<<<<< HEAD
         super(ChatWindow, self).__init__()
         loadUi("chat_window.ui", self)
 
@@ -115,6 +145,21 @@ class ChatWindow(QDialog):
         self.disconnectButton.clicked.connect(self.disconnectFromServer)
 
 
+=======
+        super(ChatWindow,self).__init__()
+        loadUi("chat_window.ui",self)
+
+        self.sendButton.clicked.connect(self.sendMessage)
+        self.disconnectButton.clicked.connect(self.disconnectFromServer)
+        
+
+
+
+        
+        
+        
+        
+>>>>>>> 26a417eb8a5a347b0a76522e2d65551ed438962b
     def sendMessage(self):
         
         msg = self.userInput.text()
@@ -148,8 +193,13 @@ class JoinServer(QDialog):
     
     def __init__(self):
         
+<<<<<<< HEAD
         super(JoinServer, self).__init__()
         loadUi("serverInfo.ui", self)
+=======
+        super(JoinServer,self).__init__()
+        loadUi("serverInfo.ui",self)
+>>>>>>> 26a417eb8a5a347b0a76522e2d65551ed438962b
 
         self.connectButton.clicked.connect(self.connectToServer)
 
@@ -158,7 +208,11 @@ class JoinServer(QDialog):
         
         ip = self.server.text()
         port = self.port.text()
+<<<<<<< HEAD
         connected = True
+=======
+        connected = TRUE
+>>>>>>> 26a417eb8a5a347b0a76522e2d65551ed438962b
             
         if connected:
             self.chatLog.append(f"[SERVER]: Successfully connected to ({ip} : {port})")
