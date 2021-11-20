@@ -4,6 +4,7 @@ import threading
 import pymongo
 import mongo
 import rsa2
+import cgitb
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtWidgets import QDialog, QApplication
 from PyQt5.uic import loadUi
@@ -22,8 +23,8 @@ class Client(object):
         self.joinServer = JoinServer()
        # self.joinServer.show()
         self.joinServer.setHidden(True)
-        self.joinServer.setFixedWidth(480)
-        self.joinServer.setFixedHeight(620)
+        self.joinServer.setFixedWidth(420)
+        self.joinServer.setFixedHeight(500)
         
         ''' Join Server Window Buttons'''
         self.joinServer.connectButton.clicked.connect(self.connectToServer)
@@ -34,27 +35,30 @@ class Client(object):
         self.loginUI = Login()
         self.loginUI.setHidden(True)
         self.loginUI.show()
-        self.loginUI.setFixedHeight(620)
-        self.loginUI.setFixedWidth(480)
+        self.loginUI.setFixedHeight(500)
+        self.loginUI.setFixedWidth(420)
 
         self.loginUI.loginButton.clicked.connect(self.login)
-        self.loginUI.createAccountButton.clicked.connect(self.movetocreate)
+        self.loginUI.zcreateAccountButton.clicked.connect(self.movetocreate)
 
         ''' Setup Account Creation '''
         self.createAcc = CreateAccount()
         self.createAcc.setHidden(True)
        # self.createAcc.show()
-        self.createAcc.setFixedHeight(620)
-        self.createAcc.setFixedWidth(480)
+        self.createAcc.setFixedHeight(500)
+        self.createAcc.setFixedWidth(420)
 
         self.createAcc.signupButton.clicked.connect(self.create)
 
         ''' Setup Chat Window '''
         self.chatWindow = ChatWindow()
         self.chatWindow.setHidden(True)
+        self.chatWindow.setFixedWidth(880)
+        self.chatWindow.setFixedHeight(645)
         self.chatWindow.sendButton.clicked.connect(self.send_message)
         self.chatWindow.disconnectButton_2.clicked.connect(self.logout)
         self.chatWindow.disconnectButton.clicked.connect(self.disconnect)
+
         
         ''' Create Client socket'''
         self.clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -200,11 +204,15 @@ class Client(object):
         self.joinServer.setVisible(True)
 
     def show_message(self, message):
+
         if message == 'USERNAME':
-            self.chatWindow.chatLog.append("Please enter your username...")
+            #self.chatWindow.chatLog.append("Please enter your username...")
             self.send_message()
         if 'USERLIST' in message:
-            userlist = message.replace('USERLIST', '')
+
+
+            userlist = message.replace('You have connected to server', '')
+            userlist = userlist.replace('USERLIST', '')
 
             userlist = userlist.replace(self.username.upper(), '')
             userlist = userlist.replace(',', '')
@@ -213,8 +221,9 @@ class Client(object):
             userlist = userlist.replace("'", '')
             userlist = userlist.strip()
 
-            # print('HERE   ',userlist)
+            print('HERE   ',userlist)
             self.userList = userlist
+            self.chatWindow.activeUsers.setPlainText(userlist)
 
         else:
             self.chatWindow.chatLog.append(message)
@@ -360,6 +369,8 @@ class Login(QDialog):
 
 if __name__ == "__main__":
     mongodb_atlas_test = mongo.mongodb_atlas_test()
+
+    cgitb.enable(format='text')
 
     ''' Fixes High Resolution Display Scaling Bug '''
     if hasattr(QtCore.Qt, 'AA_EnableHighDpiScaling'):

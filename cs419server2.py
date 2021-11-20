@@ -18,7 +18,7 @@ server.listen(2)
 
 #lists of clients accessing server and current usernames
 clientList = []
-usernameList = []
+usernameList = ['nick','john', 'paul', 'ben']
 
 """ send the usernames that we need to send messages to !"""
 def send_message(message):
@@ -59,8 +59,8 @@ def receive():
         #TODO give each user unique id, probably set id to a counter
 
         send_message("New user {} joined".format(username).encode('utf-8'))
-        client.send('You have connected to server'.encode('utf-8'))
-        usernameList2 = 'USERLIST' + str(usernameList)
+        client.send('You have connected to server\n'.encode('utf-8'))
+        usernameList2 = 'USERLIST ' + str(usernameList)
 
         print(usernameList2)
 
