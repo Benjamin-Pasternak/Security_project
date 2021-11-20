@@ -2,6 +2,9 @@ import socket
 import threading
 from threading import Thread
 from threading import Event
+import ast
+import rsa2
+import mongo
 
 # Host Machine Ip
 hostname = socket.gethostname()
@@ -9,7 +12,8 @@ host = socket.gethostbyname(hostname)
 
 # unreserved port
 port = 8081
-
+#mongs
+mongodb_atlas_test = mongo.mongodb_atlas_test()
 print(f"Host: {hostname} @ {host}")
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -23,7 +27,21 @@ usernameList = []
 
 def send_message(message):
     for client in clientList:
-        client.send(message)
+        username = usernameList[clientList.index(client)]
+        temp = mongodb_atlas_test.get_data(username)
+        print(temp[0]['publicKey'])
+        key = temp[0]['publicKey']
+        key = key.replace('(', '')
+        key = key.replace(')', '')
+        n = int(key.partition(', ')[0])
+        e = int(key.partition(', ')[2])
+        print(n)
+        print(e)
+        c = rsa2.rsa_encrypt_message(message, e, n)
+        c = str(c)
+        print(c)
+        msg = f"{username.upper()}: {c}"
+        client.send(msg)
 
 
 # client handler: receive and send client messages and check if they left. If left, then remove from lists
@@ -31,7 +49,26 @@ def client_handler(client):
     while True:
         try:
             message = client.recv(1024)
-            send_message(message)
+            encoded = message.partition(': ')[2]
+            username = message.partition(': ')[0]
+            # print(type(encoded))
+            encoded = ast.literal_eval(encoded)
+            print(type(encoded))
+            print(encoded)
+            d = 77662288554955611269468421722416415173589480086644379349629325316263250775289168432059285971035963588531522191335016219514518397293345441637556097021190196590067231699963372870059580959039385862219396355823627733372975069319803081851604979459033096929149989819950906810573669317842769071454286589443669283587
+            n = 116493432832433416904202632583624622760384220129966569024443987974394876162933752648088928956553945382797283287002524329271777595940018162456334145531785316822475007069649551189505369551771432965666304285638711211771988376956218991950664736131801653454935687886869449163747435305275635711504309569103013484449
+            print(n)
+            print(d)
+            # n, e = self.public_key_format(temp[0]['publicKey'])
+            # m2 = int(''.join())
+            c = rsa2.rsa_decrypt_message(encoded, d, n)
+
+            print("here", c)
+            c = int(''.join([str(x) for x in c]))
+            # c = c.to_bytes((c.bit_length()+7)//8,'big')
+            c = c.to_bytes((c.bit_length() + 7) // 8, 'big').decode('utf-8')
+            print(c)
+            send_message(c)
         except:
             clientIndex = clientList.index(client)
             clientList.remove(client)
@@ -61,14 +98,14 @@ def receive():
         # TODO give each user unique id, probably set id to a counter
 
         send_message("New user {} joined".format(username).encode('utf-8'))
-        # client.send('You have connected to server'.encode('utf-8'))
-        usernameList2 = 'USERLIST' + str(usernameList)
-
-        # print(usernameList2)
-        # print(len(usernameList2))
-        # for client in clientList:
-        #     client.send(usernameList2.encode('utf-8'))
-        send_message(usernameList2.encode('utf-8'))
+        client.send('You have connected to server'.encode('utf-8'))
+        # usernameList2 = 'USERLIST' + str(usernameList)
+        #
+        # # print(usernameList2)
+        # # print(len(usernameList2))
+        # # for client in clientList:
+        # #     client.send(usernameList2.encode('utf-8'))
+        # send_message(usernameList2.encode('utf-8'))
         thread = threading.Thread(target=client_handler, args=(client,))
         thread.start()
         # recv_thread = ReceiveThread(client, Stop)

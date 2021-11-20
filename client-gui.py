@@ -203,23 +203,26 @@ class Client(object):
         if message == 'USERNAME':
             #self.chatWindow.chatLog.append("Please enter your username...")
             self.send_message()
-        elif message == "New user "+self.username.upper()+" joined":
-           # print("butwhy")
-            self.chatWindow.chatLog.append(message)
-            self.chatWindow.chatLog.append('You have connected to server')
-        elif "USERLIST" in message:
-            userlist = str(message.replace('USERLIST', ''))
-
-            userlist = userlist.replace(self.username.upper(), '')
-            userlist = userlist.replace(',', '')
-            userlist = userlist.replace('[', '')
-            userlist = userlist.replace(']', '')
-            userlist = userlist.replace("'", '')
-            userlist = userlist.strip()
-            print(len(userlist))
-            print(userlist)
-           # print('HERE   ',userlist)
-            self.userList = userlist
+        elif message == 'You have connected to server':
+            self.chatWindow.chatLog.append("You have connected to server")
+            #self.send_message()
+        # elif message == "New user "+self.username.upper()+" joined":
+        #    # print("butwhy")
+        #     self.chatWindow.chatLog.append(message)
+        #     self.chatWindow.chatLog.append('You have connected to server')
+        # elif "USERLIST" in message:
+        #     userlist = str(message.replace('USERLIST', ''))
+        #
+        #     userlist = userlist.replace(self.username.upper(), '')
+        #     userlist = userlist.replace(',', '')
+        #     userlist = userlist.replace('[', '')
+        #     userlist = userlist.replace(']', '')
+        #     userlist = userlist.replace("'", '')
+        #     userlist = userlist.strip()
+        #     print(len(userlist))
+        #     print(userlist)
+        #    # print('HERE   ',userlist)
+        #     self.userList = userlist
 
         else:
             #encoded = int.from_bytes(bytes(message, 'utf-8'), 'big')
@@ -300,34 +303,36 @@ class Client(object):
             self.first = 0
         else:
             try:
-                if self.userList.replace(' ', '') != '':
-                    encoded = int.from_bytes(bytes(msg, 'utf-8'), 'big')
-                    # userlist is now empty
-                    temp = mongodb_atlas_test.get_data(self.userList)
-                    print(temp[0]['publicKey'])
-                    n, e = self.public_key_format(temp[0]['publicKey'])
-
-                    c = rsa2.rsa_encrypt_message(encoded, e, n)
-                    c = str(c)
-
-                    print(self.userList)
-                    msg = f"{self.username.upper()}: {c}"
-                    self.clientSocket.send(msg.encode('utf-8'))
-                    self.chatWindow.userInput.clear()
-                else:
-                    encoded = int.from_bytes(bytes(msg, 'utf-8'), 'big')
-                    # userlist is now empty
-                    temp = mongodb_atlas_test.get_data(self.username)
-                    print(temp[0]['publicKey'])
-                    n, e = self.public_key_format(temp[0]['publicKey'])
-                    print(n)
-                    print(e)
-                    c = rsa2.rsa_encrypt_message(encoded, e, n)
-                    c = str(c)
-                    print(c)
-                    msg = f"{self.username.upper()}: {c}"
-                    self.clientSocket.send(msg.encode('utf-8'))
-                    self.chatWindow.userInput.clear()
+                # if self.userList.replace(' ', '') != '':
+                #     encoded = int.from_bytes(bytes(msg, 'utf-8'), 'big')
+                #     # userlist is now empty
+                #     temp = mongodb_atlas_test.get_data(self.userList)
+                #     print(temp[0]['publicKey'])
+                #     n, e = self.public_key_format(temp[0]['publicKey'])
+                #
+                #     c = rsa2.rsa_encrypt_message(encoded, e, n)
+                #     c = str(c)
+                #
+                #     print(self.userList)
+                #     msg = f"{self.username.upper()}: {c}"
+                #     self.clientSocket.send(msg.encode('utf-8'))
+                #     self.chatWindow.userInput.clear()
+                # else:
+                 encoded = int.from_bytes(bytes(msg, 'utf-8'), 'big')
+                 # userlist is now empty
+                 # temp = mongodb_atlas_test.get_data(self.username)
+                 # print(temp[0]['publicKey'])
+                 # n, e = self.public_key_format(temp[0]['publicKey'])
+                 n = 116493432832433416904202632583624622760384220129966569024443987974394876162933752648088928956553945382797283287002524329271777595940018162456334145531785316822475007069649551189505369551771432965666304285638711211771988376956218991950664736131801653454935687886869449163747435305275635711504309569103013484449
+                 e = 3
+                 print(n)
+                 print(e)
+                 c = rsa2.rsa_encrypt_message(encoded, e, n)
+                 c = str(c)
+                 print(c)
+                 msg = f"{self.username.upper()}: {c}"
+                 self.clientSocket.send(msg.encode('utf-8'))
+                 self.chatWindow.userInput.clear()
             except Exception as e:
                 print('EXCEPT', self.userList)
                 error_msg = f"Error while trying to send message...\n{str(e)}"
