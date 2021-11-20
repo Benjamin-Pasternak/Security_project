@@ -25,33 +25,42 @@ clientList = []
 usernameList = []
 #thread = threading.Thread
 
-def send_message(message):
-    for client in clientList:
-        username = usernameList[clientList.index(client)]
-        temp = mongodb_atlas_test.get_data(username)
-        print(temp[0]['publicKey'])
-        key = temp[0]['publicKey']
-        key = key.replace('(', '')
-        key = key.replace(')', '')
-        n = int(key.partition(', ')[0])
-        e = int(key.partition(', ')[2])
-        print(n)
-        print(e)
-        c = rsa2.rsa_encrypt_message(message, e, n)
-        c = str(c)
-        print(c)
-        msg = f"{username.upper()}: {c}"
-        client.send(msg)
+def send_message(message, usernamesent):
+    print(message)
+    if message != "New user {} joined".format(usernamesent) and '{} left'.format(usernamesent):
+        for client in clientList:
+            username = usernameList[clientList.index(client)]
+            encoded = int.from_bytes(bytes(message, 'utf-8'), 'big')
+            temp = mongodb_atlas_test.get_data(username)
+            print(temp[0]['publicKey'])
+            key = temp[0]['publicKey']
+            key = key.replace('(', '')
+            key = key.replace(')', '')
+            n = int(key.partition(', ')[0])
+            e = int(key.partition(', ')[2])
+            print(n)
+            print(e)
+            c = rsa2.rsa_encrypt_message(encoded, e, n)
+            c = str(c)
+            print(c)
+            msg = f"{username.upper()}: {c}"
+            print(msg)
+            client.send(msg.encode("utf-8"))
+    else:
+        print("behere")
+        for client in clientList:
+            client.send(message.encode("utf-8"))
+
 
 
 # client handler: receive and send client messages and check if they left. If left, then remove from lists
 def client_handler(client):
     while True:
         try:
-            message = client.recv(1024)
+            message = client.recv(1024).decode("utf-8")
             encoded = message.partition(': ')[2]
-            username = message.partition(': ')[0]
-            # print(type(encoded))
+            #username = message.partition(': ')[0]
+            # # print(type(encoded))
             encoded = ast.literal_eval(encoded)
             print(type(encoded))
             print(encoded)
@@ -59,22 +68,22 @@ def client_handler(client):
             n = 116493432832433416904202632583624622760384220129966569024443987974394876162933752648088928956553945382797283287002524329271777595940018162456334145531785316822475007069649551189505369551771432965666304285638711211771988376956218991950664736131801653454935687886869449163747435305275635711504309569103013484449
             print(n)
             print(d)
-            # n, e = self.public_key_format(temp[0]['publicKey'])
-            # m2 = int(''.join())
+            # # n, e = self.public_key_format(temp[0]['publicKey'])
+            # # m2 = int(''.join())
             c = rsa2.rsa_decrypt_message(encoded, d, n)
-
+            #
             print("here", c)
             c = int(''.join([str(x) for x in c]))
-            # c = c.to_bytes((c.bit_length()+7)//8,'big')
+            # # c = c.to_bytes((c.bit_length()+7)//8,'big')
             c = c.to_bytes((c.bit_length() + 7) // 8, 'big').decode('utf-8')
             print(c)
-            send_message(c)
+            send_message(c, "ignore")
         except:
             clientIndex = clientList.index(client)
             clientList.remove(client)
             client.close()
             username = usernameList[clientIndex]
-            send_message('{} left'.format(username).encode('utf-8'))
+            send_message('{} left'.format(username), username)
             usernameList.remove(username)
             Stop.set()
             break
@@ -97,7 +106,7 @@ def receive():
 
         # TODO give each user unique id, probably set id to a counter
 
-        send_message("New user {} joined".format(username).encode('utf-8'))
+        send_message("New user {} joined".format(username), username)
         client.send('You have connected to server'.encode('utf-8'))
         # usernameList2 = 'USERLIST' + str(usernameList)
         #

@@ -206,10 +206,10 @@ class Client(object):
         elif message == 'You have connected to server':
             self.chatWindow.chatLog.append("You have connected to server")
             #self.send_message()
-        # elif message == "New user "+self.username.upper()+" joined":
-        #    # print("butwhy")
-        #     self.chatWindow.chatLog.append(message)
-        #     self.chatWindow.chatLog.append('You have connected to server')
+        elif message == "New user "+self.username.upper()+" joined":
+            # print("butwhy")
+             self.chatWindow.chatLog.append(message)
+             #self.chatWindow.chatLog.append('You have connected to server')
         # elif "USERLIST" in message:
         #     userlist = str(message.replace('USERLIST', ''))
         #
