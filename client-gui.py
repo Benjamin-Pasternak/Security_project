@@ -168,6 +168,7 @@ class Client(object):
                 mongodb_atlas_test.insert_data(data2)
                 self.createAcc.setHidden(True)
                 self.joinServer.setVisible(True)
+
             else:
                 self.show_error('Account Creation Error', 'Passwords do not match')
         else:
