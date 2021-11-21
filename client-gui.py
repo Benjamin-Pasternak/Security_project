@@ -24,19 +24,20 @@ class Client(object):
         self.joinServer = JoinServer()
         # self.joinServer.show()
         self.joinServer.setHidden(True)
-        self.joinServer.setFixedWidth(480)
-        self.joinServer.setFixedHeight(620)
-
+        self.joinServer.setFixedWidth(420)
+        self.joinServer.setFixedHeight(500)
+        self.joinServer.setWindowFlag(Qt.WindowMinimizeButtonHint, True)
         ''' Join Server Window Buttons'''
         self.joinServer.logoutButton.clicked.connect(self.logout)
         self.joinServer.connectButton.clicked.connect(self.connectToServer)
 
         ''' Setup Login Window '''
         self.loginUI = Login()
+        self.loginUI.setWindowFlag(Qt.WindowMinimizeButtonHint, True)
         self.loginUI.setHidden(True)
         self.loginUI.show()
-        self.loginUI.setFixedHeight(620)
-        self.loginUI.setFixedWidth(480)
+        self.loginUI.setFixedHeight(500)
+        self.loginUI.setFixedWidth(420)
         self.loginUI.password.setEchoMode(QtWidgets.QLineEdit.Password)
         self.loginUI.loginButton.clicked.connect(self.login)
         self.loginUI.createAccountButton.clicked.connect(self.movetocreate)
@@ -45,15 +46,17 @@ class Client(object):
         self.createAcc = CreateAccount()
         self.createAcc.setHidden(True)
         # self.createAcc.show()
-        self.createAcc.setFixedHeight(620)
-        self.createAcc.setFixedWidth(480)
+        self.createAcc.setFixedHeight(500)
+        self.createAcc.setFixedWidth(470)
         self.createAcc.confirmPassword.setEchoMode(QtWidgets.QLineEdit.Password)
-
+        self.createAcc.setWindowFlag(Qt.WindowMinimizeButtonHint, True)
         self.createAcc.signupButton.clicked.connect(self.create)
 
         ''' Setup Chat Window '''
         self.chatWindow = ChatWindow()
         self.chatWindow.setHidden(True)
+        self.chatWindow.setFixedHeight(645)
+        self.chatWindow.setFixedWidth(880)
         self.chatWindow.setWindowFlag(Qt.WindowMinimizeButtonHint, True)
         self.chatWindow.sendButton.clicked.connect(self.send_message)
         self.chatWindow.disconnectButton_2.clicked.connect(self.logout)
