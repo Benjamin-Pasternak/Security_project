@@ -56,11 +56,12 @@ def send_message(message, usernamesend):
             clientList.remove(client)
             client.close()
             username = usernameList[clientIndex]
-            send_greeting('{} left'.format(username))
+            send_greeting('{} left the chat'.format(username))
             usernameList.remove(username)
             #Stop.set()
 
 def send_greeting(message):
+    print("Message: ", message)
     for client in clientList:
         try:
             client.send(message.encode("utf-8"))
@@ -72,7 +73,7 @@ def send_greeting(message):
             clientList.remove(client)
             client.close()
             username = usernameList[clientIndex]
-            send_greeting('{} left'.format(username))
+            send_greeting('{} left the chat'.format(username))
             usernameList.remove(username)
             #Stop.set()
 
@@ -111,7 +112,7 @@ def client_handler(client):
                     clientList.remove(client)
                     client.close()
                     username = usernameList[clientIndex]
-                    send_greeting('{} left'.format(username))
+                    send_greeting('{} left the chat'.format(username))
                     print('how')
                     usernameList.remove(username)
                     #Stop.set()
@@ -121,7 +122,7 @@ def client_handler(client):
                 clientList.remove(client)
                 client.close()
                 username = usernameList[clientIndex]
-                send_greeting('{} left'.format(username))
+                send_greeting('{} left the chat'.format(username))
                 print('lol')
                 usernameList.remove(username)
                 break
@@ -130,7 +131,7 @@ def client_handler(client):
             clientList.remove(client)
             client.close()
             username = usernameList[clientIndex]
-            send_greeting('User {} left'.format(username))
+            send_greeting('User {} left the chat'.format(username))
             print('hi')
             usernameList.remove(username)
             break
@@ -154,17 +155,17 @@ def receive():
 
         # TODO give each user unique id, probably set id to a counter
 
-        send_greeting("New user {} joined".format(username))
+        send_greeting("New user {} joined the chat".format(username))
         client.send('You have connected to server'.encode('utf-8'))
-        print("ready")
+        print(usernameList)
 
-        # usernameList2 = 'USERLIST' + str(usernameList)
-        #
-        # # print(usernameList2)
-        # # print(len(usernameList2))
-        # # for client in clientList:
-        # #     client.send(usernameList2.encode('utf-8'))
-        # send_message(usernameList2.encode('utf-8'))
+        usernameList2 = 'USERLIST' + str(usernameList)
+
+        # print(usernameList2)
+        # print(len(usernameList2))
+        # for client in clientList:
+        #     client.send(usernameList2.encode('utf-8'))
+        send_greeting(usernameList2)
         thread = threading.Thread(target=client_handler, args=(client,))
         thread.start()
         # recv_thread = ReceiveThread(client, Stop)

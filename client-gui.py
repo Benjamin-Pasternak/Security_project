@@ -17,6 +17,7 @@ class Client(object):
 
         self.username = ''
         self.first = 1
+        self.activeusers = []
         # mongodb_atlas_test = mongodb_atlas_test()
         ''' Setup Join Server Window '''
         self.joinServer = JoinServer()
@@ -227,32 +228,43 @@ class Client(object):
     def show_message(self, message):
         print("Mes: :",message)
         if message == 'USERNAME':
-            #self.chatWindow.chatLog.append("Please enter your username...")
+
             self.send_message()
         elif message == 'You have connected to server':
             self.chatWindow.chatLog.append("You have connected to server")
             #self.send_message()
-        elif "New user" in message and "joined" in message:
+        elif "New user" in message and "joined the chat" in message:
             # print("butwhy")
-             self.chatWindow.chatLog.append(message)
-             #self.chatWindow.chatLog.append('You have connected to server')
-        elif "User" in message and "left" in message:
-            # print("butwhy")
-             self.chatWindow.chatLog.append(message)
-             #self.chatWindow.chatLog.append('You have connected to server')
-        # elif "USERLIST" in message:
-        #     userlist = str(message.replace('USERLIST', ''))
-        #
-        #     userlist = userlist.replace(self.username.upper(), '')
-        #     userlist = userlist.replace(',', '')
-        #     userlist = userlist.replace('[', '')
-        #     userlist = userlist.replace(']', '')
-        #     userlist = userlist.replace("'", '')
-        #     userlist = userlist.strip()
-        #     print(len(userlist))
-        #     print(userlist)
-        #    # print('HERE   ',userlist)
-        #     self.userList = userlist
+            self.chatWindow.chatLog.append(message)
+        elif 'USERLIST' in message:
+
+            userlist = message.replace('You have connected to server', '')
+            userlist = userlist.replace('USERLIST', '')
+
+            userlist = userlist.replace(',', '')
+            userlist = userlist.replace('[', '')
+            userlist = userlist.replace(']', '')
+            userlist = userlist.replace("'", '')
+            print(userlist)
+            users = userlist.strip()
+            self.activeusers = users.split(' ')
+
+            userlist = userlist.replace(self.username.upper(), '')
+            userlist = userlist.strip()
+
+            self.userList = userlist
+
+            self.chatWindow.activeUsers.setPlainText('\n'.join(self.activeusers))
+
+        elif "User" in message and "left the chat" in message:
+            print("butwhy")
+            self.chatWindow.chatLog.append(message)
+            user = message.replace(' left the chat', '')
+            user = user.replace('User ', '')
+            print(user)
+            print(self.activeusers)
+            self.activeusers.remove(user)
+            self.chatWindow.activeUsers.setPlainText('\n'.join(self.activeusers))
 
         else:
             #encoded = int.from_bytes(bytes(message, 'utf-8'), 'big')
