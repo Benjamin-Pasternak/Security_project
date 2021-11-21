@@ -26,6 +26,7 @@ class Client(object):
         self.joinServer.setFixedHeight(620)
 
         ''' Join Server Window Buttons'''
+        self.joinServer.logoutButton.clicked.connect(self.logout)
         self.joinServer.connectButton.clicked.connect(self.connectToServer)
 
         ''' Setup Login Window '''
@@ -196,10 +197,16 @@ class Client(object):
         *redirects to home frame when succesful
         '''
         self.username = ''
+        self.first = 1
         # self.recv_thread.end()
         self.clientSocket.close()
         self.chatWindow.setHidden(True)
         self.loginUI.setVisible(True)
+        self.loginUI.username.clear()
+        self.loginUI.password.clear()
+        self.joinServer.server.clear()
+        self.joinServer.port.clear()
+        self.clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     def disconnect(self):
         '''
@@ -207,11 +214,15 @@ class Client(object):
         *Handles user disconnecting from server
         *redirects to home frame when succesful
         '''
-        self.username = ''
+        #self.username = ''
         # self.recv_thread.end()
+        self.first = 1
         self.clientSocket.close()
         self.chatWindow.setHidden(True)
         self.joinServer.setVisible(True)
+        self.joinServer.server.clear()
+        self.joinServer.port.clear()
+        self.clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     def show_message(self, message):
         print("Mes: :",message)
@@ -390,14 +401,16 @@ class ReceiveThread(QtCore.QThread):
     def receive_message(self):
 
         while True:
-            message = self.client_socket.recv(1024)
+            try:
+                message = self.client_socket.recv(1024)
 
-            if len(message) == 0:
+
+                message = message.decode()
+
+                print(message)
+                self.signal.emit(message)
+            except:
                 break
-            message = message.decode()
-
-            print(message)
-            self.signal.emit(message)
 
 
 ''' GUI frame classes'''
