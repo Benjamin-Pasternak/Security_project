@@ -78,22 +78,11 @@ class Client(object):
         if self.connect(host, int(port)):
             self.joinServer.setHidden(True)
             self.chatWindow.setVisible(True)
-            #self.receive_message()
+
             self.recv_thread = ReceiveThread(self.clientSocket)
             self.recv_thread.signal.connect(self.show_message)
             self.recv_thread.start()
             print("[CLIENT]: Recv thread started...")
-
-    # def receive_message(self):
-    #     while True:
-    #         message = self.clientSocket.recv(1024)
-    #
-    #         if len(message) == 0:
-    #             break
-    #         message = message.decode()
-    #
-    #         print(message)
-    #         self.show_message(message)
 
     def login(self):
         '''
@@ -105,12 +94,8 @@ class Client(object):
         self.username = self.loginUI.username.text()
         password = self.loginUI.password.text()  # unsafe hash it immediatly when you input it
         the = mongodb_atlas_test.get_data(username)
-        print(type(the))
         # checking if the password is
-        if the:
-            passtemp = the[0]['password']
-        else:
-            passtemp = "no"
+        passtemp = the[0]['password']
         # temp = str(the[0])
         # # print('here', type(temp), type(the[0]))
         # num = temp.find('password')
@@ -222,10 +207,6 @@ class Client(object):
             self.chatWindow.chatLog.append("You have connected to server")
             #self.send_message()
         elif "New user" in message and "joined" in message:
-            # print("butwhy")
-             self.chatWindow.chatLog.append(message)
-             #self.chatWindow.chatLog.append('You have connected to server')
-        elif "User" in message and "left" in message:
             # print("butwhy")
              self.chatWindow.chatLog.append(message)
              #self.chatWindow.chatLog.append('You have connected to server')

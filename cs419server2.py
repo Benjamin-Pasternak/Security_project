@@ -23,69 +23,118 @@ server.listen(2)
 # lists of clients accessing server and current usernames
 clientList = []
 usernameList = []
+#Stop = Event()
 #thread = threading.Thread
 
 def send_message(message, usernamesend):
     print(message)
     for client in clientList:
-        username = usernameList[clientList.index(client)]
-        print(username)
-        encoded = int.from_bytes(bytes(message, 'utf-8'), 'big')
-        temp = mongodb_atlas_test.get_data(username)
-        print(temp[0]['publicKey'])
-        key = temp[0]['publicKey']
-        key = key.replace('(', '')
-        key = key.replace(')', '')
-        n = int(key.partition(', ')[0])
-        e = int(key.partition(', ')[2])
-        print(n)
-        print(e)
-        c = rsa2.rsa_encrypt_message(encoded, e, n)
-        c = str(c)
-        print(c)
-        msg = f"{usernamesend.upper()}: {c}"
-        print(msg)
-        client.send(msg.encode("utf-8"))
-
-def send_greeting(message):
-    for client in clientList:
-        client.send(message.encode("utf-8"))
-
-# client handler: receive and send client messages and check if they left. If left, then remove from lists
-def client_handler(client):
-    while True:
         try:
-            message = client.recv(1024).decode("utf-8")
-            username= message.partition(': ')[0]
-            encoded = message.partition(': ')[2]
-            #username = message.partition(': ')[0]
-            # # print(type(encoded))
-            encoded = ast.literal_eval(encoded)
-            print(type(encoded))
-            print(encoded)
-            d = 77662288554955611269468421722416415173589480086644379349629325316263250775289168432059285971035963588531522191335016219514518397293345441637556097021190196590067231699963372870059580959039385862219396355823627733372975069319803081851604979459033096929149989819950906810573669317842769071454286589443669283587
-            n = 116493432832433416904202632583624622760384220129966569024443987974394876162933752648088928956553945382797283287002524329271777595940018162456334145531785316822475007069649551189505369551771432965666304285638711211771988376956218991950664736131801653454935687886869449163747435305275635711504309569103013484449
+            username = usernameList[clientList.index(client)]
+            print(username)
+            encoded = int.from_bytes(bytes(message, 'utf-8'), 'big')
+            temp = mongodb_atlas_test.get_data(username)
+            print(temp[0]['publicKey'])
+            key = temp[0]['publicKey']
+            key = key.replace('(', '')
+            key = key.replace(')', '')
+            n = int(key.partition(', ')[0])
+            e = int(key.partition(', ')[2])
             print(n)
-            print(d)
-            # # n, e = self.public_key_format(temp[0]['publicKey'])
-            # # m2 = int(''.join())
-            c = rsa2.rsa_decrypt_message(encoded, d, n)
-            #
-            print("here", c)
-            c = int(''.join([str(x) for x in c]))
-            # # c = c.to_bytes((c.bit_length()+7)//8,'big')
-            c = c.to_bytes((c.bit_length() + 7) // 8, 'big').decode('utf-8')
+            print(e)
+            c = rsa2.rsa_encrypt_message(encoded, e, n)
+            c = str(c)
             print(c)
-            send_message(c, username)
+            msg = f"{usernamesend.upper()}: {c}"
+            print(msg)
+            client.send(msg.encode("utf-8"))
         except:
+            client.close()
+
+            # if the link is broken, we remove the client
             clientIndex = clientList.index(client)
             clientList.remove(client)
             client.close()
             username = usernameList[clientIndex]
             send_greeting('{} left'.format(username))
             usernameList.remove(username)
-            Stop.set()
+            #Stop.set()
+
+def send_greeting(message):
+    for client in clientList:
+        try:
+            client.send(message.encode("utf-8"))
+        except:
+            client.close()
+
+            # if the link is broken, we remove the client
+            clientIndex = clientList.index(client)
+            clientList.remove(client)
+            client.close()
+            username = usernameList[clientIndex]
+            send_greeting('{} left'.format(username))
+            usernameList.remove(username)
+            #Stop.set()
+
+# client handler: receive and send client messages and check if they left. If left, then remove from lists
+def client_handler(client):
+    while True:
+        try:
+            print(clientList)
+            print(client)
+            if client.fileno() != -1:
+                message = client.recv(1024).decode("utf-8")
+                if message:
+                    username= message.partition(': ')[0]
+                    encoded = message.partition(': ')[2]
+                    #username = message.partition(': ')[0]
+                    # # print(type(encoded))
+                    encoded = ast.literal_eval(encoded)
+                    print(type(encoded))
+                    print(encoded)
+                    d = 77662288554955611269468421722416415173589480086644379349629325316263250775289168432059285971035963588531522191335016219514518397293345441637556097021190196590067231699963372870059580959039385862219396355823627733372975069319803081851604979459033096929149989819950906810573669317842769071454286589443669283587
+                    n = 116493432832433416904202632583624622760384220129966569024443987974394876162933752648088928956553945382797283287002524329271777595940018162456334145531785316822475007069649551189505369551771432965666304285638711211771988376956218991950664736131801653454935687886869449163747435305275635711504309569103013484449
+                    print(n)
+                    print(d)
+                    # # n, e = self.public_key_format(temp[0]['publicKey'])
+                    # # m2 = int(''.join())
+                    c = rsa2.rsa_decrypt_message(encoded, d, n)
+                    #
+                    print("here", c)
+                    c = int(''.join([str(x) for x in c]))
+                    # # c = c.to_bytes((c.bit_length()+7)//8,'big')
+                    c = c.to_bytes((c.bit_length() + 7) // 8, 'big').decode('utf-8')
+                    print(c)
+                    send_message(c, username)
+                else:
+                    clientIndex = clientList.index(client)
+                    clientList.remove(client)
+                    client.close()
+                    username = usernameList[clientIndex]
+                    send_greeting('{} left'.format(username))
+                    print('how')
+                    usernameList.remove(username)
+                    #Stop.set()
+
+            else:
+                clientIndex = clientList.index(client)
+                clientList.remove(client)
+                client.close()
+                username = usernameList[clientIndex]
+                send_greeting('{} left'.format(username))
+                print('lol')
+                usernameList.remove(username)
+                break
+        except:
+            clientIndex = clientList.index(client)
+            clientList.remove(client)
+            client.close()
+            username = usernameList[clientIndex]
+            send_greeting('User {} left'.format(username))
+            print('hi')
+            usernameList.remove(username)
             break
+
 
 
 # receive clients, enter into clientList and usernameList
@@ -108,6 +157,7 @@ def receive():
         send_greeting("New user {} joined".format(username))
         client.send('You have connected to server'.encode('utf-8'))
         print("ready")
+
         # usernameList2 = 'USERLIST' + str(usernameList)
         #
         # # print(usernameList2)
@@ -137,6 +187,10 @@ def receive():
 #                 print("Asked to stop")
 #                 break;
 
+def main():
 
-Stop = Event()
-receive()
+    receive()
+
+
+if __name__ == '__main__':
+    main()

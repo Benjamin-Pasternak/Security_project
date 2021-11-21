@@ -209,7 +209,7 @@
     <string>Login</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="zcreateAccountButton">
+  <widget class="QPushButton" name="createAccountButton">
    <property name="geometry">
     <rect>
      <x>150</x>
