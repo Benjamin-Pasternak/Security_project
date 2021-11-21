@@ -2,10 +2,12 @@ import sys
 import socket
 import threading
 import pymongo
+from PyQt5.QtCore import Qt
+
 import mongo
 import rsa2
 import cgitb
-from PyQt5 import QtCore, QtWidgets
+from PyQt5 import QtCore, QtWidgets, QtGui
 from PyQt5.QtWidgets import QDialog, QApplication
 from PyQt5.uic import loadUi
 import json
@@ -17,6 +19,7 @@ class Client(object):
     def __init__(self):
         
         self.username = ''
+        self.activeusers = []
 
        # mongodb_atlas_test = mongodb_atlas_test()
         ''' Setup Join Server Window '''
@@ -25,12 +28,13 @@ class Client(object):
         self.joinServer.setHidden(True)
         self.joinServer.setFixedWidth(420)
         self.joinServer.setFixedHeight(500)
-        
+
         ''' Join Server Window Buttons'''
         self.joinServer.connectButton.clicked.connect(self.connectToServer)
-        
-        
-        
+        self.joinServer.logoutButton.clicked.connect(self.logout)
+
+
+
         ''' Setup Login Window '''
         self.loginUI = Login()
         self.loginUI.setHidden(True)
@@ -38,15 +42,21 @@ class Client(object):
         self.loginUI.setFixedHeight(500)
         self.loginUI.setFixedWidth(420)
 
+        self.loginUI.password.setEchoMode(QtWidgets.QLineEdit.Password)     # Changes password visability
+
         self.loginUI.loginButton.clicked.connect(self.login)
         self.loginUI.zcreateAccountButton.clicked.connect(self.movetocreate)
 
         ''' Setup Account Creation '''
         self.createAcc = CreateAccount()
         self.createAcc.setHidden(True)
+        self.createAcc.password.setEchoMode(QtWidgets.QLineEdit.Password)     # Changes password visability
+        self.createAcc.confirmPassword.setEchoMode(QtWidgets.QLineEdit.Password)
+
+
        # self.createAcc.show()
         self.createAcc.setFixedHeight(500)
-        self.createAcc.setFixedWidth(420)
+        self.createAcc.setFixedWidth(470)
 
         self.createAcc.signupButton.clicked.connect(self.create)
 
@@ -55,6 +65,9 @@ class Client(object):
         self.chatWindow.setHidden(True)
         self.chatWindow.setFixedWidth(880)
         self.chatWindow.setFixedHeight(645)
+
+        self.chatWindow.setWindowFlag(Qt.WindowMinimizeButtonHint, True)
+
         self.chatWindow.sendButton.clicked.connect(self.send_message)
         self.chatWindow.disconnectButton_2.clicked.connect(self.logout)
         self.chatWindow.disconnectButton.clicked.connect(self.disconnect)
@@ -189,6 +202,8 @@ class Client(object):
         #self.recv_thread.end()
         self.clientSocket.close()
         self.chatWindow.setHidden(True)
+        self.loginUI.username.clear()
+        self.loginUI.password.clear()
         self.loginUI.setVisible(True)
 
     def disconnect(self):
@@ -197,10 +212,17 @@ class Client(object):
         *Handles user disconnecting from server
         *redirects to home frame when succesful
         '''
+
+
+        self.activeusers.remove(self.username.upper())
+        self.chatWindow.activeUsers.setPlainText('\n'.join(self.activeusers))
         self.username = ''
        # self.recv_thread.end()
+
         self.clientSocket.close()
         self.chatWindow.setHidden(True)
+        self.joinServer.server.clear()
+        self.joinServer.port.clear()
         self.joinServer.setVisible(True)
 
     def show_message(self, message):
@@ -208,22 +230,39 @@ class Client(object):
         if message == 'USERNAME':
             #self.chatWindow.chatLog.append("Please enter your username...")
             self.send_message()
-        if 'USERLIST' in message:
+
+        elif 'USERLIST' in message:
 
 
             userlist = message.replace('You have connected to server', '')
             userlist = userlist.replace('USERLIST', '')
 
-            userlist = userlist.replace(self.username.upper(), '')
+
             userlist = userlist.replace(',', '')
             userlist = userlist.replace('[', '')
             userlist = userlist.replace(']', '')
             userlist = userlist.replace("'", '')
+
+            users = userlist.strip()
+            self.activeusers = users.split(' ')
+
+
+            userlist = userlist.replace(self.username.upper(), '')
             userlist = userlist.strip()
 
-            print('HERE   ',userlist)
+
             self.userList = userlist
-            self.chatWindow.activeUsers.setPlainText(userlist)
+
+
+            self.chatWindow.activeUsers.setPlainText('\n'.join(self.activeusers))
+
+
+        elif 'left the chat' in message:
+            self.chatWindow.chatLog.append(message)
+            user = message.replace(' left the chat', '')
+            self.activeusers.remove(user.upper())
+            self.chatWindow.activeUsers.setPlainText('\n'.join(self.activeusers))
+
 
         else:
             self.chatWindow.chatLog.append(message)

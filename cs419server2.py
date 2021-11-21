@@ -18,7 +18,7 @@ server.listen(2)
 
 #lists of clients accessing server and current usernames
 clientList = []
-usernameList = ['nick','john', 'paul', 'ben']
+usernameList = []
 
 """ send the usernames that we need to send messages to !"""
 def send_message(message):
@@ -29,6 +29,8 @@ def send_message(message):
 def client_handler(client):
     while True:
         try:
+
+
             message = client.recv(1024)
             send_message(message)
         except:
@@ -36,8 +38,9 @@ def client_handler(client):
             clientList.remove(client)
             client.close()
             username = usernameList[clientIndex]
-            send_message('{} left'.format(username).encode('utf-8'))
+            send_message('{} left the chat'.format(username).encode('utf-8'))
             usernameList.remove(username)
+
             break
 
 #receive clients, enter into clientList and usernameList
