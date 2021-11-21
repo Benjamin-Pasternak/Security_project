@@ -7,7 +7,8 @@ import rsa2
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtWidgets import QDialog, QApplication
 from PyQt5.uic import loadUi
-import json
+from PyQt5.QtCore import Qt
+
 import ast
 
 
@@ -36,7 +37,7 @@ class Client(object):
         self.loginUI.show()
         self.loginUI.setFixedHeight(620)
         self.loginUI.setFixedWidth(480)
-
+        self.loginUI.password.setEchoMode(QtWidgets.QLineEdit.Password)
         self.loginUI.loginButton.clicked.connect(self.login)
         self.loginUI.createAccountButton.clicked.connect(self.movetocreate)
 
@@ -46,12 +47,14 @@ class Client(object):
         # self.createAcc.show()
         self.createAcc.setFixedHeight(620)
         self.createAcc.setFixedWidth(480)
+        self.createAcc.confirmPassword.setEchoMode(QtWidgets.QLineEdit.Password)
 
         self.createAcc.signupButton.clicked.connect(self.create)
 
         ''' Setup Chat Window '''
         self.chatWindow = ChatWindow()
         self.chatWindow.setHidden(True)
+        self.chatWindow.setWindowFlag(Qt.WindowMinimizeButtonHint, True)
         self.chatWindow.sendButton.clicked.connect(self.send_message)
         self.chatWindow.disconnectButton_2.clicked.connect(self.logout)
         self.chatWindow.disconnectButton.clicked.connect(self.disconnect)
