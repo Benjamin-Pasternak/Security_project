@@ -2,8 +2,8 @@ from Crypto.Util.number import getPrime
 from functools import lru_cache
 import numpy as np
 import sys
-from mongo import mongodb_atlas_test
-#from monggo import *
+# from mongo import mongodb_atlas_test
+# from monggo import *
 import hashlib
 
 """
@@ -17,6 +17,7 @@ we keep d and n locally, and hidden in a file or something
 we push n and d to the mongo server 
 """
 
+
 def gen_p_q():
     while True:
         p = getPrime(512)
@@ -24,11 +25,14 @@ def gen_p_q():
         if p != q:
             return p, q
 
+
 def gen_n(p, q):
     return p * q
 
+
 def gen_phi(p, q):
     return (p - 1) * (q - 1)
+
 
 def gen_e(phi):
     e = 3
@@ -37,11 +41,13 @@ def gen_e(phi):
             return e
         e += 1
 
+
 @lru_cache(maxsize=None)
 def gcd_euclid(a, b):
     if b == 0:
         return a
     return gcd_euclid(b, a % b)
+
 
 @lru_cache(maxsize=None)
 def gcd_euclid_extended(a, b):
@@ -50,6 +56,7 @@ def gcd_euclid_extended(a, b):
     x, y, d = gcd_euclid_extended(b, a % b)
     return y, x - (a // b) * y, d
 
+
 @lru_cache(maxsize=None)
 def mod_inv_euclid_extended(a, m):
     x, y, d = gcd_euclid_extended(a, m)
@@ -57,14 +64,18 @@ def mod_inv_euclid_extended(a, m):
         return x % m
     return None
 
+
 def gen_d(e, phi):
     return mod_inv_euclid_extended(e, phi)
+
 
 def encrypt_block(m, e, n):
     return pow(m, e, n)
 
+
 def decrypt_block(c, d, n):
     return pow(c, d, n)
+
 
 def rsa_encrypt_message(m, e, n):
     blocks = [int(x) for x in str(m)]
@@ -72,6 +83,7 @@ def rsa_encrypt_message(m, e, n):
     for block in blocks:
         c.append(encrypt_block(block, e, n))
     return c
+
 
 def rsa_decrypt_message(c, d, n):
     blocks = [int(x) for x in c]
@@ -86,6 +98,8 @@ def rsa_decrypt_message(c, d, n):
 ---------------------------- This is for the signup ----------------------------
 --------------------------------------------------------------------------------
 """
+
+
 def gen_keys():
     p, q = gen_p_q()
     n = gen_n(p, q)
@@ -95,31 +109,32 @@ def gen_keys():
     # e = str(e)
     d = gen_d(e, phi)
 
-    return (n,e), (n,d)
+    return (n, e), (n, d)
+
 
 # def gen_private_key(n, e):
 #
 #     return d
 
-database = mongodb_atlas_test()
-
-def hash_password(password):
-    return hashlib.sha256(password.encode()).hexdigest()
-
-def signup(username, password):
-    public_key, e = gen_public_key()
-    private_key = gen_private_key(public_key[0], e)
-    print(public_key)
-    print(private_key)
-    with open('keys.txt', 'w') as f:
-        f.write(str(public_key) + '\n')
-        f.write(str(private_key))
-    # hash the password since we don't want server to know the password
-    # is this safer to do on our end or server end?
-    database.insert_user({'username': username, 'password' : hash_password(password), 'public key' :public_key })
-
-
-
+# database = mongodb_atlas_test()
+#
+# def hash_password(password):
+#     return hashlib.sha256(password.encode()).hexdigest()
+#
+# def signup(username, password):
+#     public_key, e = gen_public_key()
+#     private_key = gen_private_key(public_key[0], e)
+#     print(public_key)
+#     print(private_key)
+#     with open('keys.txt', 'w') as f:
+#         f.write(str(public_key) + '\n')
+#         f.write(str(private_key))
+#     # hash the password since we don't want server to know the password
+#     # is this safer to do on our end or server end?
+#     database.insert_user({'username': username, 'password' : hash_password(password), 'public key' :public_key })
+#
+#
+#
 
 def main():
     # p, q = gen_p_q()
@@ -136,7 +151,7 @@ def main():
     test = test.replace("(", '')
     print(test)
     n = int(test.partition(', ')[0])
-    #n = public_key[0]
+    # n = public_key[0]
     print(type(n))
     e = public_key[1]
     d = private_key[1]
@@ -146,7 +161,9 @@ def main():
     # n = int(gen_public_key().partition(' ')[0])
     # e = int(gen_public_key().partition(' ')[2])
     # d = int(gen_private_key(n, e))
-    m = int.from_bytes(b'mongodb+srv://general_user:Snapdragon777apZ@cluster0.shbn7.mongodb.net/myFirstDatabase?retryWrites=true&w=majority', 'big')
+    m = int.from_bytes(
+        b'mongodb+srv://general_user:Snapdragon777apZ@cluster0.shbn7.mongodb.net/myFirstDatabase?retryWrites=true&w=majority',
+        'big')
     # print(m)
     c = rsa_encrypt_message(m, e, n)
     print('C: ', c)
@@ -155,16 +172,12 @@ def main():
     m2 = rsa_decrypt_message(c, d, n)
     print(m2)
     m2 = int(''.join([str(x) for x in m2]))
-    #m2 = int(m2)
+    # m2 = int(m2)
     m2 = m2.to_bytes((m2.bit_length() + 7) // 8, 'big').decode('utf-8')
     print(m2)
     # b = m2.to_bytes(, 'big')
     # b = b.decode('utf-8')
     # print(b)
-
-
-
-
 
 # if __name__ == '__main__':
 #     main()

@@ -4,16 +4,22 @@ import time
 import os
 import sys
 import certifi
+import json
+import rsa3
 
-# import rsa2
+def decrypt_connection_string():
+    file = open('./secrets.json')
+    data = json.load(file)
+    connect_string = rsa3.rsa_decrypt_message(data['string'], data['d'], data['n'])
+    connect_string = int(''.join([str(x) for x in connect_string]))
+    connect_string = connect_string.to_bytes((connect_string.bit_length() + 7) // 8, 'big').decode('utf-8')
+    return connect_string
+
 
 
 class mongodb_atlas_test:
     def __init__(self):
-        """
-        TODO: This client connection string needs to probabaly be secured. Need to figure out what
-        the best way to do this is.
-        """
+        # connection_uri =
         self.client = pymongo.MongoClient('mongodb+srv://general_user:Snapdragon777apZ@cluster0.shbn7.mongodb.net/myFirstDatabase?retryWrites=true&w=majority', tlsCAFile=certifi.where())
         self.db = self.client.myFirstDatabase
         self.collection = self.db.user_info
@@ -90,3 +96,6 @@ class mongodb_atlas_test:
 #
 #    # usetemp = the2.get("username")
 #    # print(usetemp)
+
+# if __name__ == "__main__":
+#     decrypt_connection_string()
