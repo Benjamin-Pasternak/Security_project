@@ -16,6 +16,12 @@ to create accounts, log into a server via hostname and port, and participate
 in chat dialogues. 
 ___
 
+# Required libraries
+
+pip install -r requirements.txt
+
+___
+
 # Instructions For use
 ___
 1. The program is launched by running `%python3 client-gui.py`
