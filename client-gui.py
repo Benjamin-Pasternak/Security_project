@@ -28,7 +28,7 @@ class Client(object):
         self.joinServer.setFixedHeight(500)
         self.joinServer.setWindowFlag(Qt.WindowMinimizeButtonHint, True)
         ''' Join Server Window Buttons'''
-        self.joinServer.logoutButton.clicked.connect(self.logout)
+        self.joinServer.logoutButton.clicked.connect(self.logout2)
         self.joinServer.connectButton.clicked.connect(self.connectToServer)
 
         ''' Setup Login Window '''
@@ -208,6 +208,24 @@ class Client(object):
         # self.recv_thread.end()
         self.clientSocket.close()
         self.chatWindow.setHidden(True)
+        self.loginUI.setVisible(True)
+        self.loginUI.username.clear()
+        self.loginUI.password.clear()
+        self.chatWindow.chatLog.clear()
+        self.joinServer.server.clear()
+        self.joinServer.port.clear()
+        self.clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    def logout2(self):
+        '''
+            [Called on logout press]
+        *Handles user logout
+        *redirects to home frame when succesful
+        '''
+        self.username = ''
+        self.first = 1
+        # self.recv_thread.end()
+        self.clientSocket.close()
+        self.joinServer.setHidden(True)
         self.loginUI.setVisible(True)
         self.loginUI.username.clear()
         self.loginUI.password.clear()
