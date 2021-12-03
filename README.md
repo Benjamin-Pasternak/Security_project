@@ -15,6 +15,8 @@ and are stored within a password protected Database.
 This project's gui was constructed using Pyqt5 and should enable end users 
 to create accounts, log into a server via hostname and port, and participate 
 in chat dialogues. 
+
+Accounts are locked to the computer that creates the account.
 ___
 
 # Required libraries
